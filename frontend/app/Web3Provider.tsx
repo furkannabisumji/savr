@@ -1,27 +1,27 @@
-"use client"
+"use client";
 
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { mainnet } from "wagmi/chains";
+import { mainnet, polygonAmoy } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import { ReactNode } from "react";
 
+import { lens } from "./customChains";
+
 const config = createConfig(
   getDefaultConfig({
     // Your dApps chains
-    chains: [mainnet],
+    chains: [lens],
     transports: {
       // RPC URL for each chain
-      [mainnet.id]: http(
-        `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_ID}`,
-      ),
+      [lens.id]: http(`${lens.rpcUrls.default}`),
     },
 
     // Required API Keys
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
 
     // Required App Info
-    appName: "Your App Name",
+    appName: "Savr",
 
     // Optional App Info
     appDescription: "Your App Description",
@@ -35,7 +35,7 @@ const queryClient = new QueryClient();
 interface Web3ProviderProps {
   children: ReactNode;
 }
-export const Web3Provider = ({ children } : Web3ProviderProps ) => {
+export const Web3Provider = ({ children }: Web3ProviderProps) => {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>

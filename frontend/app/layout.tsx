@@ -1,16 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Roboto, Open_Sans } from "next/font/google";
 import "./globals.css";
 import { Web3Provider } from "./Web3Provider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Configure Roboto font
+const roboto = Roboto({
+  variable: "--font-roboto",
   subsets: ["latin"],
+  weight: ["400", "700"], // Specify font weights
+  style: ["normal", "italic"], // Include italic styles if needed
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Configure Open Sans font (or another sans-serif font)
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
   subsets: ["latin"],
+  weight: ["400", "600", "700"], // Load weights for flexibility
 });
 
 export const metadata: Metadata = {
@@ -26,9 +31,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${roboto.variable} ${openSans.variable} antialiased`} // Apply both fonts globally
       >
-        <Web3Provider >{children}</Web3Provider>
+        <Web3Provider>{children}</Web3Provider>
       </body>
     </html>
   );
