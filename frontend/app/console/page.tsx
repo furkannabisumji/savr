@@ -5,6 +5,6 @@ import { Input } from "@/components/ui/input";
 import { ConnectKitButton } from "connectkit";
 import { FaUser } from "react-icons/fa";
 
-export default function Home() {
+export default function Dashboard() {
   return <main className="h-full">hello</main>;
 }

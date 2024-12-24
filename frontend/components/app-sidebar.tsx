@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import { Calendar, Home, Inbox, Search, Settings, User } from "lucide-react";
 import { MdOutlineSpaceDashboard } from "react-icons/md";
 import { RiUserCommunityLine } from "react-icons/ri";
 import {
@@ -12,24 +12,25 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
 
 // Menu items.
 const items = [
   {
-    title: "Dashboard",
-    url: "#",
+    title: "Console",
+    url: "/console",
     icon: MdOutlineSpaceDashboard,
   },
 
   {
     title: "Circles",
-    url: "#",
+    url: "/console/circles",
     icon: RiUserCommunityLine,
   },
   {
-    title: "Settings",
+    title: "Account",
     url: "#",
-    icon: Settings,
+    icon: User,
   },
 ];
 
@@ -37,9 +38,12 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarContent>
-        <div className="font-bold text-3xl flex items-center px-4  h-16">
+        <Link
+          href="/"
+          className="font-bold text-3xl flex items-center px-4  h-16"
+        >
           Savr
-        </div>
+        </Link>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>

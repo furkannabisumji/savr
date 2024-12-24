@@ -23,17 +23,17 @@ export default function ConsoleLayout({
 }>) {
   return (
     <div className="h-screen">
-      <SidebarProvider>
+      <SidebarProvider className="h-screen">
         <AppSidebar />
-        <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-white">
+        <SidebarInset className="h-full">
+          <header className="flex h-[5%] shrink-0 items-center gap-2 border-b px-4 bg-white">
             <SidebarTrigger className="-ml-1" />
 
             <div className="flex flex-grow items-center justify-end">
               <ConnectKitButton />
             </div>
           </header>
-          <div className="flex flex-1 flex-col gap-4 p-4 bg-white">
+          <div className="flex h-[95%] flex-col gap-4 px-3 bg-white">
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
@@ -41,7 +41,7 @@ export default function ConsoleLayout({
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
+                  <BreadcrumbPage>Circles</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
