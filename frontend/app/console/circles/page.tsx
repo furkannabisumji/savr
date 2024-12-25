@@ -25,7 +25,7 @@ import Link from "next/link";
 
 export default function Circles() {
   return (
-    <main className="h-[95%] flex flex-col gap-10 ">
+    <main className="h-[90%] flex flex-col gap-6 ">
       <div className="relative h-18   w-full max-w-2xl m-auto flex gap-3 p-2 bg-background/40 backdrop-blur-md rounded-xl border border-border/40 shadow-md">
         <Input
           type="text"
@@ -62,10 +62,10 @@ export default function Circles() {
         </Button>
       </div>
 
-      <div className="flex justify-between h-[5%] items-center bg-gray-100 py-2 px-1">
-        <div className="bg-white">
+      <div className="flex justify-between h-[5%] items-center bg-gray-100 py-2 px-2">
+        <div className="bg-white ">
           <Select defaultValue="all">
-            <SelectTrigger className="w-[180px] border-border/40 bg-background/50 backdrop-blur">
+            <SelectTrigger className="w-[100px]  border-border/40 bg-background/50 backdrop-blur">
               Filter
             </SelectTrigger>
             <SelectContent>
@@ -103,7 +103,7 @@ export default function Circles() {
         </div>
       </div>
 
-      <div className="h-[90%] grid lg:grid-cols-2 xl:grid-cols-3   w-full overflow-y-auto gap-4 px-3 bg-gray-50 py-2">
+      <div className="h-[90%] grid lg:grid-cols-2 xl:grid-cols-3  w-full overflow-y-auto gap-4 px-3 bg-gray-50 py-2">
         {Array.from({ length: 10 }).map((_, index) => (
           <Link href={`/console/circles/${index}`} key={index}>
             <Card className="col-span-1 h-[200px] py-2 px-2 rounded-md cursor-pointer">

@@ -1,6 +1,10 @@
 "use client";
 
 import * as React from "react";
+import {
+  DoubleArrowLeftIcon,
+  DoubleArrowRightIcon,
+} from "@radix-ui/react-icons";
 
 import {
   ColumnDef,
@@ -32,6 +36,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -70,8 +76,8 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="h-full w-full ">
-      <div className="flex items-center justify-between py-4 h-[10%]">
+    <div className=" w-full">
+      <div className="flex items-center justify-between gap-4 py-4">
         <Input
           placeholder="Filter circles..."
           value={(table.getColumn("circle")?.getFilterValue() as string) ?? ""}
@@ -81,32 +87,30 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
 
-        <Button variant="secondary" className=" flex gap-2">
-          Create <FaPlus size={20} />
+        <Button variant="secondary">
+          <FaPlus size={20} /> Create
         </Button>
       </div>
 
-      <div className="rounded-md border h-[80%] w-full overflow-y-auto">
-        <Table className="h-full">
+      <ScrollArea className="grid h-[calc(80vh-250px)] rounded-md border md:h-[calc(90dvh-270px)]">
+        <Table className="relative">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} className="text-center">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className="overflow-y-auto ">
+          <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
@@ -135,27 +139,50 @@ export function DataTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
-      </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
 
-      <div className="flex items-center justify-end space-x-2 py-4 h-[10%] ">
-        {/* {table.getFilteredSelectedRowModel().rows.length} of{" "}
-        {table.getFilteredRowModel().rows.length} row(s) selected. */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
+      <div className="flex flex-col items-center justify-end gap-2 space-x-2 py-4 sm:flex-row">
+        <div className="flex w-full items-center justify-between gap-2 sm:justify-end">
+          <div className="flex items-center space-x-2">
+            <Button
+              aria-label="Go to first page"
+              variant="outline"
+              className="hidden h-8 w-8 p-0 lg:flex"
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <DoubleArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
+            </Button>
+            <Button
+              aria-label="Go to previous page"
+              variant="outline"
+              className="h-8 w-8 p-0"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
+            </Button>
+            <Button
+              aria-label="Go to next page"
+              variant="outline"
+              className="h-8 w-8 p-0"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <ChevronRightIcon className="h-4 w-4" aria-hidden="true" />
+            </Button>
+            <Button
+              aria-label="Go to last page"
+              variant="outline"
+              className="hidden h-8 w-8 p-0 lg:flex"
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+            >
+              <DoubleArrowRightIcon className="h-4 w-4" aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

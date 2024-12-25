@@ -1,8 +1,25 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Circle, columns } from "./components/membersTable/columns";
 import { DataTable } from "./components/membersTable/data-table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { LuUsers } from "react-icons/lu";
+import { IoChatboxEllipsesOutline } from "react-icons/io5";
+import { IoDocumentTextOutline } from "react-icons/io5";
+import { Button } from "@/components/ui/button";
+import { PiMoney, PiRecycle, PiUsersThreeBold } from "react-icons/pi";
+import { CiUser } from "react-icons/ci";
+import { Activities } from "./circles/[slug]/components/Activities";
+import { Terms } from "./circles/[slug]/components/Terms";
+import { Chat } from "./circles/[slug]/components/Chat";
+import { Members } from "./circles/[slug]/components/Members";
 
 async function getData(): Promise<Circle[]> {
   // Fetch data from your API here.
@@ -195,15 +212,6 @@ export default async function Console() {
 
   return (
     <main className="h-full flex flex-col overflow-y-auto   ">
-      {/* <section className="h-[5%] flex gap-2 items-center">
-        <div className="h-full w-[100px] bg-gray-400 "></div>
-        <div className="h-full flex flex-col justify-center">
-          <h2 className=" font-bold text-3xl">Web3 Legends</h2>
-          <p className="flex  text-sm gap-3">
-            Created: <span className="text-gray-500">23 Dec 2024</span>
-          </p>
-        </div>
-      </section> */}
       {/* summary  */}
       <section className="grid xl:h-[18%]  gap-4 md:grid-cols-2 lg:grid-cols-4 py-6">
         <Card>
@@ -309,7 +317,11 @@ export default async function Console() {
         </Card>
       </section>
       {/* additional data */}
-      <section className="h-[100vh] xl:h-[82%]  gap-10 px-3">
+      {/* <section className="h-[100vh] xl:h-[82%] flex  gap-10 px-3 w-full overflow-x-auto">
+        <DataTable columns={columns} data={data} />
+      </section> */}
+
+      <section className="h-auto xl:h-[82%]   flex flex-col xl:flex-row gap-10">
         <DataTable columns={columns} data={data} />
       </section>
     </main>
