@@ -33,7 +33,7 @@ contract Savr is Ownable{
     }
 
     IERC20 public stablecoin =
-        IERC20(address(0x7362394341a522BC46Cdc992C0a11410a808d08B));
+        IERC20(address(0x1CB10928cFFBda565db55cC19905eB4c01268497));
     enum InviteStatus {
         NOT_INVITED,
         INVITED,
