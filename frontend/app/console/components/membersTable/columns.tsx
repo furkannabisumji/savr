@@ -10,11 +10,11 @@ import { Button } from "@/components/ui/button";
 export type Circle = {
   id: number;
   circle: string;
-  Owner: string;
+  owner: string;
   volume: number;
   created: Date;
   cycles: number;
-  status: "active | ended";
+  status: "active" | "ended";
 };
 
 const formatDate = (dt: Date) => {
