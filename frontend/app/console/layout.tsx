@@ -15,6 +15,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ConnectKitButton } from "connectkit";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 export default function ConsoleLayout({
   children,
@@ -35,7 +36,7 @@ export default function ConsoleLayout({
           </header>
           <div className="flex h-[95%] flex-col gap-4 px-3 bg-white">
             <Breadcrumb>
-              <BreadcrumbList>
+              <BreadcrumbList className="py-2">
                 <BreadcrumbItem className="hidden md:block">
                   <BreadcrumbLink href="#">Console</BreadcrumbLink>
                 </BreadcrumbItem>
