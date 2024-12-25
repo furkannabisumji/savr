@@ -1,18 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.28;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
-import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Savr is VRFConsumerBaseV2Plus {
-    uint256 public s_subscriptionId =
-        18485235045923748517842014129209678113721846330818201405028339281268836167465;
-    address public vrfCoordinator = 0xDA3b641D438362C440Ac5458c57e00a712b66700;
-    bytes32 public s_keyHash =
-        0x8596b430971ac45bdf6088665b9ad8e8630c9d5049ab54b14dff711bee7c0e26;
-    mapping(uint256 => address) private s_rollers;
-    mapping(address => uint256) private s_results;
+contract Savr is Ownable{
 
     struct Group {
         string name;
@@ -50,11 +42,11 @@ contract Savr is VRFConsumerBaseV2Plus {
     uint256 public groupIdCounter;
     mapping(uint256 => Group) public groups;
 
-    bytes32 internal keyHash;
-    uint256 internal fee;
+    uint256 requestIdCounter;
     mapping(uint256 => uint256) public requestIdToGroupId;
     mapping(uint256 => mapping(address => InviteStatus)) public invites;
 
+    event RandomWordsRequested(uint256 requestId);
     event GroupCreated(uint256 groupId);
     event MemberRequested(uint256 groupId, address member);
     event MemberInvited(uint256 groupId, address member);
@@ -63,7 +55,7 @@ contract Savr is VRFConsumerBaseV2Plus {
     event FundsDistributed(uint256 groupId, address recipient);
     event GroupTerminated(uint256 groupId);
 
-    constructor() VRFConsumerBaseV2Plus(vrfCoordinator) {}
+    constructor() {}
 
     function createGroup(
         string calldata name,
@@ -152,19 +144,9 @@ contract Savr is VRFConsumerBaseV2Plus {
     }
 
     function requestRandomRecipient(uint256 groupId) internal {
-        uint256 requestId = s_vrfCoordinator.requestRandomWords(
-            VRFV2PlusClient.RandomWordsRequest({
-                keyHash: s_keyHash,
-                subId: s_subscriptionId,
-                requestConfirmations: 1,
-                callbackGasLimit: 400000,
-                numWords: 1,
-                extraArgs: VRFV2PlusClient._argsToBytes(
-                    VRFV2PlusClient.ExtraArgsV1({nativePayment: false})
-                )
-            })
-        );
-        requestIdToGroupId[requestId] = groupId;
+        requestIdCounter++;
+        requestIdToGroupId[requestIdCounter] = groupId;
+        emit RandomWordsRequested(requestIdCounter);
     }
 
     function fulfillRandomness(uint256 requestId, uint256 randomness) internal {
@@ -246,7 +228,7 @@ contract Savr is VRFConsumerBaseV2Plus {
     function fulfillRandomWords(
         uint256 requestId,
         uint256[] calldata randomWords
-    ) internal override {
+    ) external onlyOwner {
         fulfillRandomness(requestId, randomWords[0]);
     }
 }
