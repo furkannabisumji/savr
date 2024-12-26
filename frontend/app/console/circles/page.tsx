@@ -25,7 +25,7 @@ import Link from "next/link";
 
 export default function Circles() {
   return (
-    <main className="h-[90%] flex flex-col gap-6 ">
+    <main className="h-full flex flex-col gap-6 ">
       <div className="relative h-18   w-full max-w-2xl m-auto flex gap-3 p-2 bg-background/40 backdrop-blur-md rounded-xl border border-border/40 shadow-md">
         <Input
           type="text"
