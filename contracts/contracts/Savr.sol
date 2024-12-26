@@ -4,8 +4,7 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Savr is Ownable{
-
+contract Savr is Ownable {
     struct Group {
         string name;
         string image;
@@ -124,6 +123,7 @@ contract Savr is Ownable{
     function contribute(uint256 groupId) external {
         Group storage group = groups[groupId];
         require(group.isActive[msg.sender], "Not a member");
+        require(group.members.length > 1, "Must have at least 2 members");
         require(
             !group.hasContributed[msg.sender],
             "Already contributed for this cycle"
@@ -195,12 +195,13 @@ contract Savr is Ownable{
     function allMembersContributed(
         Group storage group
     ) internal view returns (bool) {
+        bool hasContributed;
         for (uint256 i = 0; i < group.members.length; i++) {
-            if (!group.hasContributed[group.members[i]]) {
-                return false;
+            if (group.hasContributed[group.members[i]]) {
+                hasContributed = true;
             }
         }
-        return true;
+        return hasContributed;
     }
 
     function getGroups(
