@@ -40,8 +40,8 @@ export default function ConsoleLayout({
               <ConnectKitButton />
             </div>
           </header>
-          <div className="flex h-[90%] xl:h-[95%] flex-col gap-4 px-3 bg-white">
-            <div className="flex items-center">
+          <div className="flex h-[90%] xl:h-[95%] flex-col  px-3 bg-white">
+            <div className="flex items-center h-[2%] ">
               <SidebarTrigger className="-ml-1 xl:hidden" />
 
               <Breadcrumb>
@@ -77,7 +77,7 @@ export default function ConsoleLayout({
               </Breadcrumb>
             </div>
 
-            {children}
+            <div className="h-[98%] ">{children}</div>
           </div>
         </SidebarInset>
       </SidebarProvider>

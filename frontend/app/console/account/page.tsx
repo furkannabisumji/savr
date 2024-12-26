@@ -17,7 +17,7 @@ export default async function Console() {
     <main className="h-full flex flex-col gap-6 overflow-y-auto  ">
       {/* Profile */}
 
-      <section className=" flex flex-col xl:flex-row xl:h-[20%] gap-4">
+      <section className=" flex flex-col xl:flex-row xl:h-[20%] gap-4 pt-6">
         <div className=" w-full xl:w-[15%] ">
           <ProfileImage src="/profile.jpg" alt="profile image" />
         </div>

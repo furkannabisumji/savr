@@ -131,7 +131,7 @@ export function AppSidebar() {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuGroup>
-                  <Link href="/account">
+                  <Link href="/console/account">
                     <DropdownMenuItem>
                       <BadgeCheck />
                       Account
