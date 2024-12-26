@@ -123,7 +123,7 @@ contract Savr is Ownable {
     function contribute(uint256 groupId) external {
         Group storage group = groups[groupId];
         require(group.isActive[msg.sender], "Not a member");
-        require(group.members.length > 1, "Must have at least 2 members");
+        require(group.members.length == group.totalCycles, "Must be full");
         require(
             !group.hasContributed[msg.sender],
             "Already contributed for this cycle"
@@ -195,10 +195,10 @@ contract Savr is Ownable {
     function allMembersContributed(
         Group storage group
     ) internal view returns (bool) {
-        bool hasContributed;
+        bool hasContributed = true;
         for (uint256 i = 0; i < group.members.length; i++) {
-            if (group.hasContributed[group.members[i]]) {
-                hasContributed = true;
+            if (!group.hasContributed[group.members[i]]) {
+                hasContributed = false;
             }
         }
         return hasContributed;
