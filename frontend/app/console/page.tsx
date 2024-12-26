@@ -1,25 +1,6 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Circle, columns } from "./components/membersTable/columns";
 import { DataTable } from "./components/membersTable/data-table";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import { LuUsers } from "react-icons/lu";
-import { IoChatboxEllipsesOutline } from "react-icons/io5";
-import { IoDocumentTextOutline } from "react-icons/io5";
-import { Button } from "@/components/ui/button";
-import { PiMoney, PiRecycle, PiUsersThreeBold } from "react-icons/pi";
-import { CiUser } from "react-icons/ci";
-import { Activities } from "./circles/[slug]/components/Activities";
-import { Terms } from "./circles/[slug]/components/Terms";
-import { Chat } from "./circles/[slug]/components/Chat";
-import { Members } from "./circles/[slug]/components/Members";
 
 async function getData(): Promise<Circle[]> {
   // Fetch data from your API here.

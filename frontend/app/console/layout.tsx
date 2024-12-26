@@ -8,44 +8,75 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ConnectKitButton } from "connectkit";
-import { NuqsAdapter } from "nuqs/adapters/next/app";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function ConsoleLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const currentPath = usePathname();
   return (
     <div className="h-screen">
       <SidebarProvider className="h-screen">
         <AppSidebar />
         <SidebarInset className="h-full">
-          <header className="flex h-[5%] shrink-0 items-center gap-2 border-b px-4 bg-white">
-            <SidebarTrigger className="-ml-1" />
-
-            <div className="flex flex-grow items-center justify-end">
+          <header className="flex h-[10%] xl:h-[5%] shrink-0 items-center gap-2 border-b px-4 bg-white">
+            <SidebarTrigger className="-ml-1 hidden xl:flex" />
+            <div className="flex flex-grow items-center justify-between xl:justify-end">
+              <Link
+                href="/"
+                className="font-bold text-3xl flex items-center xl:hidden  h-16"
+              >
+                Savr
+              </Link>
               <ConnectKitButton />
             </div>
           </header>
-          <div className="flex h-[95%] flex-col gap-4 px-3 bg-white">
-            <Breadcrumb>
-              <BreadcrumbList className="py-2">
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">Console</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Circles</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+          <div className="flex h-[90%] xl:h-[95%] flex-col gap-4 px-3 bg-white">
+            <div className="flex items-center">
+              <SidebarTrigger className="-ml-1 xl:hidden" />
+
+              <Breadcrumb>
+                <BreadcrumbList className="py-2">
+                  {currentPath == "/console" && (
+                    <BreadcrumbItem className="hidden md:block">
+                      <BreadcrumbLink href="/console">Console</BreadcrumbLink>
+                    </BreadcrumbItem>
+                  )}
+                  {currentPath == "/console/circles" && (
+                    <>
+                      <BreadcrumbItem className="hidden md:block">
+                        <BreadcrumbLink href="/console">Console</BreadcrumbLink>
+                      </BreadcrumbItem>
+                      <BreadcrumbSeparator className="hidden md:block" />
+                      <BreadcrumbItem>
+                        <BreadcrumbPage>Circles</BreadcrumbPage>
+                      </BreadcrumbItem>
+                    </>
+                  )}
+                  {currentPath == "/console/account" && (
+                    <>
+                      <BreadcrumbItem className="hidden md:block">
+                        <BreadcrumbLink href="/console">Console</BreadcrumbLink>
+                      </BreadcrumbItem>
+                      <BreadcrumbSeparator className="hidden md:block" />
+                      <BreadcrumbItem>
+                        <BreadcrumbPage>Account</BreadcrumbPage>
+                      </BreadcrumbItem>
+                    </>
+                  )}
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
+
             {children}
           </div>
         </SidebarInset>
