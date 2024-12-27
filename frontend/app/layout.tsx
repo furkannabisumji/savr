@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Roboto, Open_Sans } from "next/font/google";
 import "./globals.css";
-import { Web3Provider } from "./Web3Provider";
+import { Web3Provider } from "./web3Provider";
+import { Toaster } from "@/components/ui/toaster";
 
 // Configure Roboto font
 const roboto = Roboto({
@@ -34,6 +35,7 @@ export default function RootLayout({
         className={`${roboto.variable} ${openSans.variable} antialiased`} // Apply both fonts globally
       >
         <Web3Provider>{children}</Web3Provider>
+        <Toaster />
       </body>
     </html>
   );

@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/table";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { CircleForm } from "../CreateForm";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -87,9 +88,7 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
 
-        <Button variant="secondary">
-          <FaPlus size={20} /> Create
-        </Button>
+        <CircleForm />
       </div>
 
       <ScrollArea className="grid h-[calc(80vh-250px)] rounded-md border md:h-[calc(90dvh-270px)]">
