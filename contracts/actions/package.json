@@ -7,11 +7,8 @@
         "typescript": "^4.3.5"
     },
     "dependencies": {
-        "@lens-network/sdk": "^0.0.0-canary-20241203140504",
         "@tenderly/actions": "^0.2.0",
-        "crypto": "^1.0.1",
-        "ethers": "^6.13.4",
-        "zksync-ethers": "^6.15.3"
+        "lens-network-hardhat-boilerplate": "file:.."
     },
     "private": true
 }

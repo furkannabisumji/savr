@@ -1,0 +1,21 @@
+account_id: ""
+actions:
+  furkannabisumji/project:
+    runtime: v2
+    sources: actions
+    specs:
+      oracle:
+        description: This is oracle contract to get random number like chainlink vrf
+        function: oracle:blockOracleFn
+        trigger:
+          type: transaction
+          transaction:
+            status:
+              - mined
+            filters:
+              - network: 37111
+                eventEmitted:
+                  contract:
+                    address: 0xebd420029e80252eE887578f17bE934218Dce502
+                  name: RandomWordsRequested
+project_slug: ""
