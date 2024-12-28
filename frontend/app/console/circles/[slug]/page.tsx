@@ -269,7 +269,7 @@ export default function CircleDetail() {
               <Terms />
             </TabsContent>
             <TabsContent value="invite" className="h-[92%]  p-2">
-              <Invites groupId={slug} />
+              <Invites groupId={Number(slug)} />
             </TabsContent>
           </Tabs>
         </div>
