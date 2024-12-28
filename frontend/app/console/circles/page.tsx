@@ -2,28 +2,26 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { PiMoney, PiRecycle, PiUsersThreeBold } from "react-icons/pi";
-import { CiMoneyCheck1 } from "react-icons/ci";
-import Link from "next/link";
+import { useReadContract } from "wagmi";
+import config from "@/constants/config.json";
+import type { Circle } from "@/types";
+import CircelCard from "../components/CircleCard";
 
 export default function Circles() {
+  const { data: circles }: { data: Circle[] | undefined } = useReadContract({
+    abi: config.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.savr.address as `0x${string}`, // Contract address
+    functionName: "getGroups",
+    args: [0],
+  });
+
   return (
     <main className="h-full flex flex-col gap-6 ">
       <div className="relative h-18   w-full max-w-2xl m-auto flex gap-3 p-2 bg-background/40 backdrop-blur-md rounded-xl border border-border/40 shadow-md">
@@ -103,44 +101,9 @@ export default function Circles() {
         </div>
       </div>
 
-      <div className="h-[87%] grid lg:grid-cols-2 xl:grid-cols-3  w-full overflow-y-auto gap-4 px-3 bg-gray-50 py-2">
-        {Array.from({ length: 10 }).map((_, index) => (
-          <Link href={`/console/circles/${index}`} key={index}>
-            <Card className="col-span-1 h-[200px] py-2 px-2 rounded-md cursor-pointer">
-              <CardContent className=" h-full flex pb-0 px-0 gap-3">
-                <div className="bg-gray-300 w-[30%] h-full rounded-md"></div>
-                <div className="flex flex-grow flex-col ">
-                  <div className="flex justify-between items-center  h-[20%] border-b">
-                    <h3 className="font-semibold text-sm ">Web 3 Legends</h3>
-                    <small className="text-gray-500">2 months ago</small>
-                  </div>
-                  <div className="flex justify-between items-center h-[20%]">
-                    <h3 className="font-semibold text-sm flex items-center  gap-2 ">
-                      <PiRecycle size={15} /> <span>Cycles:</span>
-                    </h3>
-                    <small className="text-gray-500">20.0</small>
-                  </div>
-                  <div className="flex justify-between items-center h-[20%]">
-                    <h3 className="font-semibold text-sm flex items-center gap-2 ">
-                      <PiUsersThreeBold size={15} /> <span>Members:</span>{" "}
-                    </h3>
-                    <small className="text-gray-500">1.2k</small>
-                  </div>
-
-                  <div className="flex justify-between items-center h-[20%]">
-                    <h3 className="font-semibold text-sm flex items-center gap-2 ">
-                      <PiMoney size={15} /> <span>Contributions:</span>
-                    </h3>
-                    <small className="text-gray-500">20</small>
-                  </div>
-
-                  <div className="flex justify-end items-center h-[20%] border-t pt-2">
-                    <Button className="rounded-none py-2 w-[30%] ">Join</Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+      <div className="h-[87%] grid lg:grid-cols-2 xl:grid-cols-3  w-full overflow-y-auto gap-4 px-3 bg-gray-50 py-2 ">
+        {circles?.map((circle, index) => (
+          <CircelCard circle={circle} key={index} id={index + 1} />
         ))}
       </div>
     </main>

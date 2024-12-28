@@ -192,7 +192,7 @@ export default async function Console() {
   const data = await getData();
 
   return (
-    <main className="h-full flex flex-col overflow-y-auto   ">
+    <main className="h-full flex flex-col overflow-y-auto relative  ">
       {/* summary  */}
       <section className="grid xl:h-[18%]  gap-4 md:grid-cols-2 lg:grid-cols-4 py-6">
         <Card>

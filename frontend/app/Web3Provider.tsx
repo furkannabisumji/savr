@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import { ReactNode } from "react";
 import { lens } from "./customChains";
+import { mainnet } from "wagmi/chains";
 
 const config = createConfig(
   getDefaultConfig({
@@ -12,7 +13,7 @@ const config = createConfig(
     chains: [lens],
     transports: {
       // RPC URL for each chain
-      [lens.id]: http(`${lens.rpcUrls.default}`),
+      [lens.id]: http(`${lens.rpcUrls.default.http}`),
     },
 
     // Required API Keys
