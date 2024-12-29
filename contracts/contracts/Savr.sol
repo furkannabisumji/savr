@@ -6,6 +6,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Savr is Ownable {
     struct Group {
+        uint id;
         string name;
         string image;
         uint256 contributionAmount;
@@ -17,9 +18,11 @@ contract Savr is Ownable {
         mapping(address => bool) hasContributed;
         mapping(address => bool) isActive;
         address currentRecipient;
+        uint createdAt;
     }
 
     struct GroupInfo {
+        uint id;
         string name;
         string image;
         uint256 contributionAmount;
@@ -29,6 +32,7 @@ contract Savr is Ownable {
         address admin;
         address[] members;
         address currentRecipient;
+        uint createdAt;
     }
 
     IERC20 public stablecoin =
@@ -45,14 +49,14 @@ contract Savr is Ownable {
     mapping(uint256 => uint256) public requestIdToGroupId;
     mapping(uint256 => mapping(address => InviteStatus)) public invites;
 
-    event RandomWordsRequested(uint256 requestId);
-    event GroupCreated(uint256 groupId);
-    event MemberRequested(uint256 groupId, address member);
-    event MemberInvited(uint256 groupId, address member);
-    event MemberJoined(uint256 groupId, address member);
-    event ContributionMade(uint256 groupId, address member);
-    event FundsDistributed(uint256 groupId, address recipient);
-    event GroupTerminated(uint256 groupId);
+    event RandomWordsRequested(uint256 requestId, uint timestamp);
+    event GroupCreated(uint256 groupId, uint timestamp);
+    event MemberRequested(uint256 groupId, address member, uint timestamp);
+    event MemberInvited(uint256 groupId, address member, uint timestamp);
+    event MemberJoined(uint256 groupId, address member, uint timestamp);
+    event ContributionMade(uint256 groupId, address member, uint timestamp);
+    event FundsDistributed(uint256 groupId, address recipient, uint timestamp);
+    event GroupTerminated(uint256 groupId, uint timestamp);
 
     constructor() {}
 
@@ -71,14 +75,16 @@ contract Savr is Ownable {
 
         groupIdCounter++;
         Group storage group = groups[groupIdCounter];
+        group.id = groupIdCounter;
         group.name = name;
         group.image = image;
         group.admin = msg.sender;
         group.contributionAmount = contributionAmount;
         group.totalCycles = totalCycles;
         group.preStakeAmount = preStakeAmount;
+        group.createdAt = block.timestamp;
 
-        emit GroupCreated(groupIdCounter);
+        emit GroupCreated(groupIdCounter, block.timestamp);
     }
 
     function joinGroup(uint256 groupId) external {
@@ -100,7 +106,7 @@ contract Savr is Ownable {
         group.members.push(msg.sender);
         group.isActive[msg.sender] = true;
 
-        emit MemberJoined(groupId, msg.sender);
+        emit MemberJoined(groupId, msg.sender, block.timestamp);
     }
 
     function inviteGroup(uint256 groupId, address member) external {
@@ -113,10 +119,10 @@ contract Savr is Ownable {
         );
         if (group.admin == msg.sender) {
             invites[groupId][member] = InviteStatus.INVITED;
-            emit MemberInvited(groupId, member);
+            emit MemberInvited(groupId, member, block.timestamp);
         } else {
             invites[groupId][member] = InviteStatus.REQUESTED;
-            emit MemberRequested(groupId, member);
+            emit MemberRequested(groupId, member, block.timestamp);
         }
     }
 
@@ -136,7 +142,7 @@ contract Savr is Ownable {
         );
         group.hasContributed[msg.sender] = true;
 
-        emit ContributionMade(groupId, msg.sender);
+        emit ContributionMade(groupId, msg.sender, block.timestamp);
 
         if (allMembersContributed(group)) {
             requestRandomRecipient(groupId);
@@ -146,7 +152,7 @@ contract Savr is Ownable {
     function requestRandomRecipient(uint256 groupId) internal {
         requestIdCounter++;
         requestIdToGroupId[requestIdCounter] = groupId;
-        emit RandomWordsRequested(requestIdCounter);
+        emit RandomWordsRequested(requestIdCounter, block.timestamp);
     }
 
     function fulfillRandomness(uint256 requestId, uint256 randomness) internal {
@@ -167,7 +173,7 @@ contract Savr is Ownable {
             group.hasContributed[group.members[i]] = false;
         }
 
-        emit FundsDistributed(groupId, recipient);
+        emit FundsDistributed(groupId, recipient, block.timestamp);
 
         if (group.currentCycle == group.totalCycles) {
             terminateGroup(groupId);
@@ -189,7 +195,7 @@ contract Savr is Ownable {
 
         delete groups[groupId];
 
-        emit GroupTerminated(groupId);
+        emit GroupTerminated(groupId, block.timestamp);
     }
 
     function allMembersContributed(
@@ -212,6 +218,7 @@ contract Savr is Ownable {
         for (uint256 i = 1; i <= length; i++) {
             Group storage group = groups[i];
             allGroups[i - 1] = GroupInfo({
+                id: group.id,
                 name: group.name,
                 image: group.image,
                 contributionAmount: group.contributionAmount,
@@ -220,7 +227,8 @@ contract Savr is Ownable {
                 preStakeAmount: group.preStakeAmount,
                 admin: group.admin,
                 members: group.members,
-                currentRecipient: group.currentRecipient
+                currentRecipient: group.currentRecipient,
+                createdAt: group.createdAt
             });
         }
         return allGroups;
