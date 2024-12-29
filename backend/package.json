@@ -1,0 +1,24 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p .",
+    "dev": "nodemon --watch src -e js,ts,ejs --exec \"npm run build && node dist/\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@lens-network/sdk": "^0.0.0-canary-20241203140504",
+    "dotenv": "^16.4.7",
+    "ethers": "^6.13.4",
+    "zksync-ethers": "^6.15.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9",
+    "typescript": "^5.7.2"
+  }
+}
