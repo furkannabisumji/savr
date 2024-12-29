@@ -1,4 +1,5 @@
 export interface Circle {
+  id: number;
   admin: string; // Admin address (0x address)
   contributionAmount: bigint; // BigInt for the contribution amount
   currentCycle: bigint; // BigInt for the current cycle
@@ -8,9 +9,11 @@ export interface Circle {
   name: string; // Group name
   preStakeAmount: bigint; // BigInt for the pre-stake amount
   totalCycles: bigint; // BigInt for total cycles
+  createdAt: number;
 }
 
 export type CircleData = [
+  id: number,
   name: string, // 'Degen'
   imageHash: string, // 'bafkreieuxuc55qblza7f3zkqwqgz6jpa6jksesorejvv2foh2wet6gyxde'
   contributionAmount: bigint, // 10000000000000000n
@@ -19,4 +22,5 @@ export type CircleData = [
   preStakeAmount: bigint, // 4000000000000000000000000000000000n
   adminAddress: `0x${string}`, // '0x7D4e2d9D7cf03199D5E41bAB5E9930a8d9A44FD7'
   currentRecipient: `0x${string}`, // '0x0000000000000000000000000000000000000000'
+  createdAt: number,
 ];
