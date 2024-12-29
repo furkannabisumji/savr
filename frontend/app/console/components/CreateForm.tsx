@@ -60,6 +60,19 @@ export function CircleForm() {
           <FaPlus size={20} /> Create
         </Button>
       </DrawerTrigger>
+      <DrawerTrigger asChild>
+        <div className="fixed inline-block bottom-6 right-6 rounded-full z-20">
+          {/* Button */}
+          <Button className="group rounded-full h-14 min-w-14 shadow-xl">
+            <FaPlus size={20} />
+          </Button>
+
+          {/* Hover Text */}
+          <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 text-sm bg-gray-800 text-white px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity">
+            Create
+          </span>
+        </div>
+      </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
           <DrawerTitle>Create Circle</DrawerTitle>
@@ -79,7 +92,7 @@ export function CircleForm() {
   );
 }
 
-import { useReadContract, useWriteContract } from "wagmi";
+import { useWriteContract } from "wagmi";
 import config from "@/constants/config.json";
 import { useToast } from "@/hooks/use-toast";
 import { parseEther } from "viem";
@@ -185,7 +198,7 @@ function CreateForm({ className, setOpen, ...rest }: CreateFormProps) {
           type="number"
           min={0}
           max={100}
-          value={stake as number}
+          value={stake !== null ? stake : ""} // Use an empty string when null
           id="stake"
           onChange={(e) => {
             const value = Number(e.target.value);
@@ -203,7 +216,7 @@ function CreateForm({ className, setOpen, ...rest }: CreateFormProps) {
       </div>
       <div className="grid gap-2">
         <Label htmlFor="stake">Circle Image</Label>
-        <div className="flex justify-center items-center h-52 bg-gray-100">
+        <div className="flex justify-center items-center h-36 lg:h-52 bg-gray-100">
           <ImageUploader image={image} setImage={setImage} />
         </div>
       </div>

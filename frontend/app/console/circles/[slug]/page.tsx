@@ -18,18 +18,48 @@ import { CiUser } from "react-icons/ci";
 import { Chat } from "./components/Chat";
 import { Members } from "./components/Members";
 import { Terms } from "./components/Terms";
+import { FaRegAddressCard } from "react-icons/fa";
+import { Invites } from "./components/Invites";
+import { CircleData } from "@/types";
+import { useReadContract } from "wagmi";
+import config from "@/constants/config.json";
+import { useParams } from "next/navigation";
+import Image from "next/image";
+import { formatEther } from "viem";
 
 export default function CircleDetail() {
+  const { slug } = useParams();
+
+  const { data: selectedCircle }: { data: CircleData | undefined } =
+    useReadContract({
+      abi: config.savr.abi, // Contract ABI to interact with the smart contract
+      address: config.savr.address as `0x${string}`, // Contract address
+      functionName: "groups",
+      args: [slug],
+    });
+
   return (
     <main className="h-full flex flex-col overflow-y-auto relative ">
       <section className="h-[10%] flex gap-2 items-center">
-        <div className="h-full w-[100px] bg-gray-400 "></div>
+        <div className="h-full w-[100px] bg-gray-400 relative">
+          <Image
+            src={`${process.env.NEXT_PUBLIC_LIGHTHOUSE_GATE_WAY}/${selectedCircle && selectedCircle[1]}`} // Dynamic image source
+            alt={(selectedCircle && selectedCircle[0]) || "A circle image"} // Better alt text using dynamic name if available
+            layout="fill" // Makes the image fill the container
+            objectFit="cover" // Ensures the image covers the container without distortion
+            priority={true} // Use priority for images above the fold
+            className="rounded-md"
+          />
+        </div>
         <div className="h-full flex flex-col justify-center">
-          {" "}
-          <h2 className=" font-bold text-3xl">Web3 Legends</h2>
-          <p className="flex  text-sm gap-3">
-            Created: <span className="text-gray-500">23 Dec 2024</span>
-          </p>
+          <div>
+            <h2 className=" font-bold text-3xl">
+              {selectedCircle && selectedCircle[0]}
+            </h2>
+            <p className="flex  text-sm gap-3">
+              Created: <span className="text-gray-500">23 Dec 2024</span>
+            </p>
+          </div>
         </div>
       </section>
       {/* summary  */}
@@ -53,7 +83,9 @@ export default function CircleDetail() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$45,231.89</div>
+            <div className="text-2xl font-bold">
+              ${selectedCircle && formatEther(selectedCircle[2])}
+            </div>
             <p className="text-xs text-muted-foreground">
               +20.1% from last month
             </p>
@@ -101,12 +133,15 @@ export default function CircleDetail() {
               strokeWidth="2"
               className="h-4 w-4 text-muted-foreground"
             >
-              <rect width="20" height="14" x="2" y="5" rx="2" />
-              <path d="M2 10h20" />
+              <circle cx="12" cy="12" r="10" />
+
+              <line x1="8" y1="12" x2="16" y2="12" />
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+12,234</div>
+            <div className="text-2xl font-bold">
+              +{selectedCircle && formatEther(selectedCircle[3])}
+            </div>
             <p className="text-xs text-muted-foreground">
               Avg of 90% participation
             </p>
@@ -174,7 +209,10 @@ export default function CircleDetail() {
                     <h3 className="font-semibold text-sm flex items-center gap-2 ">
                       <PiMoney size={15} /> <span>Contributions:</span>
                     </h3>
-                    <small className="text-gray-500">20</small>
+                    <small className="text-gray-500">
+                      {" "}
+                      ${selectedCircle && formatEther(selectedCircle[2])}
+                    </small>
                   </div>
 
                   <div className="flex justify-between items-center h-[16.66%] gap-3 border-t pt-5">
@@ -203,16 +241,22 @@ export default function CircleDetail() {
           </Card>
         </div>
         <div className="h-full  w-full xl:w-3/5 xl:border-l  ">
-          <Tabs defaultValue="members" className="w-full h-full min-h-[50vh]">
+          <Tabs
+            defaultValue="members"
+            className="w-full h-full min-h-[50vh] p-0 max-h-[100vh]"
+          >
             <TabsList className="w-full justify-start rounded-none h-[8%]">
-              <TabsTrigger value="members" className="h-full gap-3">
-                <LuUsers size={20} /> Members
+              <TabsTrigger value="members" className="h-full flex gap-2 p-1">
+                <LuUsers size={14} /> Members
               </TabsTrigger>
-              <TabsTrigger value="chat" className="h-full gap-3">
-                <IoChatboxEllipsesOutline size={20} /> Chat
+              <TabsTrigger value="chat" className="h-full flex gap-2 p-1">
+                <IoChatboxEllipsesOutline size={14} /> Chat
               </TabsTrigger>
-              <TabsTrigger value="terms" className="h-full">
-                <IoDocumentTextOutline size={20} /> Terms
+              <TabsTrigger value="terms" className="h-full flex gap-2 p-1">
+                <IoDocumentTextOutline size={14} /> Terms
+              </TabsTrigger>
+              <TabsTrigger value="invite" className="h-full flex gap-2 p-1">
+                <FaRegAddressCard size={14} /> Invites
               </TabsTrigger>
             </TabsList>
             <TabsContent value="members" className=" h-[92%]  p-2">
@@ -223,6 +267,9 @@ export default function CircleDetail() {
             </TabsContent>
             <TabsContent value="terms" className="h-[92%]  p-2">
               <Terms />
+            </TabsContent>
+            <TabsContent value="invite" className="h-[92%]  p-2">
+              <Invites groupId={Number(slug)} />
             </TabsContent>
           </Tabs>
         </div>
