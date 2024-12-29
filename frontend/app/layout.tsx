@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto, Open_Sans } from "next/font/google";
 import "./globals.css";
-import { Web3Provider } from "./web3Provider";
+import { Web3Provider } from "./Web3Provider";
 import { Toaster } from "@/components/ui/toaster";
 
 // Configure Roboto font

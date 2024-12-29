@@ -21,14 +21,20 @@ import { Terms } from "./components/Terms";
 import { FaRegAddressCard } from "react-icons/fa";
 import { Invites } from "./components/Invites";
 import { CircleData } from "@/types";
-import { useReadContract } from "wagmi";
+import { useReadContract, useWriteContract } from "wagmi";
 import config from "@/constants/config.json";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { formatEther } from "viem";
+import WalletAddress from "../../components/WalletAddress";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export default function CircleDetail() {
   const { slug } = useParams();
+  const { toast } = useToast();
+  const { writeContractAsync: contributeFunction } = useWriteContract();
+  const [isContributing, setIsContributing] = useState(false);
 
   const { data: selectedCircle }: { data: CircleData | undefined } =
     useReadContract({
@@ -38,13 +44,49 @@ export default function CircleDetail() {
       args: [slug],
     });
 
+  const contribute = async () => {
+    setIsContributing(true);
+    try {
+      // Approve token for factory contract
+      await contributeFunction({
+        abi: config.usdt.abi,
+        address: config.usdt.address as `0x${string}`,
+        functionName: "approve",
+        args: [config.savr.address, selectedCircle ? selectedCircle[3] : 0],
+      });
+
+      // Execute the contribution transaction
+      await contributeFunction({
+        abi: config.savr.abi,
+        address: config.savr.address as `0x${string}`,
+        functionName: "contribute",
+        args: [selectedCircle ? Number(selectedCircle[0]) : 0],
+      });
+
+      // Show success toast
+      toast({
+        description: "Contribution completed successfully!",
+      });
+      setIsContributing(false);
+    } catch (error) {
+      // Show error toast if transaction fails
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: "Contribution failed.",
+      });
+    } finally {
+      setIsContributing(false);
+    }
+  };
+
   return (
     <main className="h-full flex flex-col overflow-y-auto relative ">
       <section className="h-[10%] flex gap-2 items-center">
         <div className="h-full w-[100px] bg-gray-400 relative">
           <Image
-            src={`${process.env.NEXT_PUBLIC_LIGHTHOUSE_GATE_WAY}/${selectedCircle && selectedCircle[1]}`} // Dynamic image source
-            alt={(selectedCircle && selectedCircle[0]) || "A circle image"} // Better alt text using dynamic name if available
+            src={`${process.env.NEXT_PUBLIC_LIGHTHOUSE_GATE_WAY}/${selectedCircle && selectedCircle[2]}`} // Dynamic image source
+            alt={(selectedCircle && selectedCircle[1]) || "A circle image"} // Better alt text using dynamic name if available
             layout="fill" // Makes the image fill the container
             objectFit="cover" // Ensures the image covers the container without distortion
             priority={true} // Use priority for images above the fold
@@ -54,7 +96,7 @@ export default function CircleDetail() {
         <div className="h-full flex flex-col justify-center">
           <div>
             <h2 className=" font-bold text-3xl">
-              {selectedCircle && selectedCircle[0]}
+              {selectedCircle && selectedCircle[1]}
             </h2>
             <p className="flex  text-sm gap-3">
               Created: <span className="text-gray-500">23 Dec 2024</span>
@@ -67,7 +109,7 @@ export default function CircleDetail() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-primary">
-              Total Volume
+              Contribution amount
             </CardTitle>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -84,7 +126,7 @@ export default function CircleDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${selectedCircle && formatEther(selectedCircle[2])}
+              ${selectedCircle && formatEther(selectedCircle[3])}
             </div>
             <p className="text-xs text-muted-foreground">
               +20.1% from last month
@@ -121,7 +163,7 @@ export default function CircleDetail() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-primary">
-              Cycles Completed
+              Cycles
             </CardTitle>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -140,7 +182,7 @@ export default function CircleDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              +{selectedCircle && formatEther(selectedCircle[3])}
+              +{selectedCircle && formatEther(selectedCircle[4])}
             </div>
             <p className="text-xs text-muted-foreground">
               Avg of 90% participation
@@ -166,8 +208,10 @@ export default function CircleDetail() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2 Days</div>
-            <p className="text-xs text-muted-foreground">To end 25 Dec 2025</p>
+            <div className="text-2xl font-bold">
+              {selectedCircle && formatEther(selectedCircle[5])}
+            </div>
+            <p className="text-xs text-muted-foreground">Current cycle count</p>
           </CardContent>
         </Card>
       </section>
@@ -196,7 +240,11 @@ export default function CircleDetail() {
                     <h3 className="font-semibold text-sm flex items-center  gap-2 ">
                       <CiUser size={15} /> <span>Benefactor :</span>
                     </h3>
-                    <small className="text-gray-500">William Ikeji</small>
+                    <small className="text-gray-500">
+                      <WalletAddress
+                        address={selectedCircle ? selectedCircle[8] : ""}
+                      />
+                    </small>
                   </div>
                   <div className="flex justify-between items-center h-[16.66%]">
                     <h3 className="font-semibold text-sm flex items-center gap-2 ">
@@ -207,11 +255,11 @@ export default function CircleDetail() {
 
                   <div className="flex justify-between items-center h-[16.66%]">
                     <h3 className="font-semibold text-sm flex items-center gap-2 ">
-                      <PiMoney size={15} /> <span>Contributions:</span>
+                      <PiMoney size={15} /> <span>Contribution amount:</span>
                     </h3>
                     <small className="text-gray-500">
                       {" "}
-                      ${selectedCircle && formatEther(selectedCircle[2])}
+                      $ {selectedCircle && formatEther(selectedCircle[3])}
                     </small>
                   </div>
 
@@ -222,7 +270,12 @@ export default function CircleDetail() {
                     >
                       Opt-out
                     </Button>
-                    <Button className="rounded-none py-2 w-[50%] ">
+                    <Button
+                      className="rounded-none py-2 w-[50%] "
+                      onClick={contribute}
+                      type="button"
+                      disabled={isContributing}
+                    >
                       Contribute
                     </Button>
                   </div>

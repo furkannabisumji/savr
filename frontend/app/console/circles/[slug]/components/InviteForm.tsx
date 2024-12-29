@@ -1,5 +1,4 @@
 import * as React from "react";
-import lighthouse from "@lighthouse-web3/sdk";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@custom-react-hooks/use-media-query";
 import { Button } from "@/components/ui/button";
@@ -24,8 +23,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FaPlus } from "react-icons/fa";
-import { FiUploadCloud } from "react-icons/fi";
-import Image from "next/image";
 
 export function InviteDataForm({ groupId }: { groupId: number }) {
   const [open, setOpen] = React.useState(false);
@@ -78,10 +75,10 @@ export function InviteDataForm({ groupId }: { groupId: number }) {
   );
 }
 
-import { useReadContract, useWriteContract } from "wagmi";
+import { useWriteContract } from "wagmi";
 import config from "@/constants/config.json";
 import { useToast } from "@/hooks/use-toast";
-import { parseEther } from "viem";
+import { useParams } from "next/navigation";
 
 interface InviteFormProps extends React.ComponentProps<"form"> {
   setOpen: (open: boolean) => void;
@@ -92,12 +89,13 @@ function InviteForm({ className, setOpen, groupId, ...rest }: InviteFormProps) {
   const [address, setAddress] = React.useState<string>("");
   const [creating, setCreating] = React.useState(false);
   const { toast } = useToast();
+  const { slug } = useParams();
 
   //write to contract
   const { writeContractAsync: inviteFunction } = useWriteContract();
   const inviteMember = async () => {
     setCreating(true);
-    if (!address || !groupId) {
+    if (!address) {
       toast({
         title: "Error",
         description: "All fields must be filled out.",
@@ -111,7 +109,7 @@ function InviteForm({ className, setOpen, groupId, ...rest }: InviteFormProps) {
         abi: config.savr.abi, // Contract ABI to interact with the smart contract
         address: config.savr.address as `0x${string}`, // Contract address
         functionName: "inviteGroup", // The function in the smart contract to be called
-        args: [groupId, address], // Arguments for the contract function
+        args: [slug, address], // Arguments for the contract function
       });
 
       toast({
@@ -134,7 +132,7 @@ function InviteForm({ className, setOpen, groupId, ...rest }: InviteFormProps) {
     <form className={cn("grid items-start gap-4", className)}>
       <div className="grid gap-2">
         <Label htmlFor="id">Circle Id</Label>
-        <Input type="text" id="id" readOnly={true} defaultValue={"0x00"} />
+        <Input type="text" id="id" readOnly={true} defaultValue={slug} />
       </div>
       <div className="grid gap-2">
         <Label htmlFor="address">Address</Label>
