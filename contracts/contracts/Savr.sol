@@ -24,6 +24,7 @@ contract Savr is Ownable {
         address[] members;
         mapping(address => bool) hasContributed;
         mapping(address => bool) isActive;
+        mapping(address => bool) hasReceivedFunds;
         address currentRecipient;
         uint createdAt;
         Cycle[] cycles;
@@ -77,6 +78,7 @@ contract Savr is Ownable {
         uint256 totalCycles,
         uint256 preStakePercentage
     ) external {
+        require(totalCycles > 1, "Minimum totalCycles is 2");
         require(preStakePercentage <= 100, "Invalid pre-stake percentage");
         uint256 cycleDuration = 7 days;
         uint256 preStakeAmount = (contributionAmount *
@@ -238,35 +240,54 @@ contract Savr is Ownable {
         uint256 randomIndex = randomness % group.members.length;
         address recipient = group.members[randomIndex];
 
+        uint256 retryCount = 0;
+        uint256 maxRetries = 50;
+
+        while (group.hasReceivedFunds[recipient] && retryCount < maxRetries) {
+            randomIndex = (randomIndex + 1) % group.members.length;
+            recipient = group.members[randomIndex];
+            retryCount++;
+        }
         stablecoin.transfer(
             recipient,
             group.contributionAmount * group.members.length
         );
         group.currentRecipient = recipient;
+        group.hasReceivedFunds[recipient] = true;
         group.currentCycle++;
-
-        for (uint256 i = 0; i < group.members.length; i++) {
-            group.hasContributed[group.members[i]] = false;
+        if (isGroupExpired(groupId)) {
+            terminateGroup(groupId);
+        } else {
+            for (uint256 i = 0; i < group.members.length; i++) {
+                group.hasContributed[group.members[i]] = false;
+            }
         }
 
         emit FundsDistributed(groupId, recipient, block.timestamp);
-
-        if (isCycleExpired(group)) {
-            terminateGroup(groupId);
-        }
     }
 
-    function isCycleExpired(Group storage group) internal view returns (bool) {
-        if (group.currentCycle >= group.cycles.length) return false;
-        return
-            (!allMembersContributed(group) &&
-                block.timestamp > group.cycles[group.currentCycle].deadline) ||
-            group.currentCycle == group.totalCycles;
+    function isGroupExpired(uint groupId) public view returns (bool) {
+        Group storage group = groups[groupId];
+
+        if (group.currentCycle >= group.totalCycles) {
+            return true;
+        }
+
+        Cycle storage currentCycle = group.cycles[group.currentCycle];
+
+        if (
+            block.timestamp > currentCycle.deadline &&
+            !allMembersContributed(group)
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     function terminateGroup(uint256 groupId) public {
         Group storage group = groups[groupId];
-        require(isCycleExpired(group), "Group is active");
+        require(isGroupExpired(groupId), "Group is active");
 
         uint256 remainingPreStake = group.preStakeAmount * group.members.length;
         uint256 perMemberShare = remainingPreStake / group.members.length;
