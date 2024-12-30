@@ -11,7 +11,6 @@ export default function Console() {
     abi: config.savr.abi, // Contract ABI to interact with the smart contract
     address: config.savr.address as `0x${string}`, // Contract address
     functionName: "getGroups",
-    args: [0],
   });
 
   return (
@@ -127,7 +126,7 @@ export default function Console() {
       </section> */}
 
       <section className="h-auto xl:h-[82%]   flex flex-col xl:flex-row gap-10">
-        {circles && <DataTable columns={columns} data={circles} />}
+        <DataTable columns={columns} data={circles || []} />
       </section>
     </main>
   );

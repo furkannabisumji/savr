@@ -136,13 +136,14 @@ function CreateForm({ className, setOpen, ...rest }: CreateFormProps) {
     try {
       // Convert numbers to strings and parse to Ether
       const parsedAmount = parseEther(amount.toString());
-      const parsedCycles = parseEther(cycles.toString());
+
+      console.log(name, image, parsedAmount, cycles, stake);
 
       await createFunction({
         abi: config.savr.abi, // Contract ABI to interact with the smart contract
         address: config.savr.address as `0x${string}`, // Contract address
         functionName: "createGroup", // The function in the smart contract to be called
-        args: [name, image, parsedAmount, parsedCycles, stake], // Arguments for the contract function
+        args: [name, image, parsedAmount, cycles, stake], // Arguments for the contract function
       });
 
       toast({
@@ -173,7 +174,7 @@ function CreateForm({ className, setOpen, ...rest }: CreateFormProps) {
         />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="amount">Amount (GRASS)</Label>
+        <Label htmlFor="amount">Amount (USDT)</Label>
         <Input
           type="number"
           min={0}
@@ -186,7 +187,7 @@ function CreateForm({ className, setOpen, ...rest }: CreateFormProps) {
         <Label htmlFor="cycles">Cycles</Label>
         <Input
           type="number"
-          min={0}
+          min={2}
           onChange={(e) => setCycles(Number(e.target.value))}
           id="cycles"
           placeholder="Max Cycles"

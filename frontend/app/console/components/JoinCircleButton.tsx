@@ -34,7 +34,7 @@ const JoinCircleButton = ({
     try {
       //  calculating the amount to stake in your contract
       const amt = calculatePercentage(
-        Number(formatEther(prestake)),
+        Number(prestake),
         Number(formatEther(amount)),
       );
 

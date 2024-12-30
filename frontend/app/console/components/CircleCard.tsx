@@ -25,44 +25,6 @@ export default function CircelCard({ circle }: { circle: Circle }) {
     return (x / 100) * A;
   };
 
-  const join = async () => {
-    setCreating(true);
-
-    try {
-      const amt = calculatePercentage(
-        Number(formatEther(circle.preStakeAmount)),
-        Number(formatEther(circle.contributionAmount)),
-      );
-
-      // Approve token for factory contract
-      await joinFunction({
-        abi: config.usdt.abi,
-        address: config.usdt.address as `0x${string}`,
-        functionName: "approve",
-        args: [config.savr.address, amt ? parseEther(amt.toString()) : 0],
-      });
-
-      await joinFunction({
-        abi: config.savr.abi, // Contract ABI to interact with the smart contract
-        address: config.savr.address as `0x${string}`, // Contract address
-        functionName: "joinGroup", // The function in the smart contract to be called
-        args: [circle.id], // Arguments for the contract function
-      });
-
-      toast({
-        title: "Success ",
-        description: `You have joined ${circle.name}`,
-      });
-    } catch (error) {
-      console.error("Error in joining :", error);
-      toast({
-        title: "Error",
-        description: `An error occurred while joining ${circle.name}.`,
-      });
-    } finally {
-      setCreating(false);
-    }
-  };
   return (
     <Card className="col-span-1 h-[200px] py-2 px-2 rounded-md ">
       <CardContent className=" h-full p-0 flex">
@@ -95,8 +57,7 @@ export default function CircelCard({ circle }: { circle: Circle }) {
               <PiRecycle size={15} /> <span>Cycles:</span>
             </h3>
             <small className="text-gray-500">
-              {formatEther(circle.currentCycle)}/
-              {formatEther(circle.totalCycles)}
+              {circle.currentCycle}/{circle.totalCycles}
             </small>
           </div>
           <div className="flex justify-between items-center h-[20%]">
@@ -122,7 +83,7 @@ export default function CircelCard({ circle }: { circle: Circle }) {
                 {formatEther(
                   // @ts-ignore
                   calculatePercentage(
-                    Number(formatEther(circle.preStakeAmount)),
+                    Number(circle.preStakeAmount),
                     Number(formatEther(circle.contributionAmount)),
                   ),
                 )}
