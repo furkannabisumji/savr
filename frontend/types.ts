@@ -12,6 +12,13 @@ export interface Circle {
   createdAt: number;
 }
 
+interface Cycle {
+  createdAt: bigint; // uint256 (BigNumber type for large numbers)
+  deadline: bigint; // uint256 (BigNumber type)
+  contributedAmount: bigint; // uint256 (BigNumber type)
+  members: string[]; // address[] (Array of strings representing Ethereum addresses)
+}
+
 export type CircleData = [
   id: number,
   name: string, // 'Degen'
@@ -21,6 +28,8 @@ export type CircleData = [
   currentCycle: bigint, // 0n
   preStakeAmount: bigint, // 4000000000000000000000000000000000n
   adminAddress: `0x${string}`, // '0x7D4e2d9D7cf03199D5E41bAB5E9930a8d9A44FD7'
+  members: `0x${string}`[],
   currentRecipient: `0x${string}`, // '0x0000000000000000000000000000000000000000'
   createdAt: number,
+  cycles: Cycle[],
 ];

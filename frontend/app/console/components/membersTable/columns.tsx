@@ -82,7 +82,7 @@ export const columns: ColumnDef<Circle>[] = [
     cell: ({ row }) => {
       return (
         <div className="text-center font-medium">
-          {formatEther(row.original.totalCycles)}
+          {row.original.totalCycles}
         </div>
       );
     },

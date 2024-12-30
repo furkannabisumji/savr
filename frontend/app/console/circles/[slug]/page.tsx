@@ -80,6 +80,7 @@ export default function CircleDetail() {
     }
   };
 
+  console.log(selectedCircle);
   return (
     <main className="h-full flex flex-col overflow-y-auto relative ">
       <section className="h-[10%] flex gap-2 items-center">
@@ -154,7 +155,9 @@ export default function CircleDetail() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+2350</div>
+            <div className="text-2xl font-bold">
+              +${selectedCircle && selectedCircle[8].length}
+            </div>
             <p className="text-xs text-muted-foreground">
               +180.1% from last month
             </p>
