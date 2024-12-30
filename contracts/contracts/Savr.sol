@@ -5,6 +5,13 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Savr is Ownable {
+    struct Cycle {
+        uint256 createdAt;
+        uint256 deadline;
+        uint256 contributedAmount;
+        address[] members;
+    }
+
     struct Group {
         uint id;
         string name;
@@ -19,6 +26,7 @@ contract Savr is Ownable {
         mapping(address => bool) isActive;
         address currentRecipient;
         uint createdAt;
+        Cycle[] cycles;
     }
 
     struct GroupInfo {
@@ -33,6 +41,7 @@ contract Savr is Ownable {
         address[] members;
         address currentRecipient;
         uint createdAt;
+        Cycle[] cycles;
     }
 
     IERC20 public stablecoin =
@@ -42,6 +51,7 @@ contract Savr is Ownable {
         INVITED,
         REQUESTED
     }
+
     uint256 public groupIdCounter;
     mapping(uint256 => Group) public groups;
 
@@ -68,7 +78,7 @@ contract Savr is Ownable {
         uint256 preStakePercentage
     ) external {
         require(preStakePercentage <= 100, "Invalid pre-stake percentage");
-
+        uint256 cycleDuration = 7 days;
         uint256 preStakeAmount = (contributionAmount *
             totalCycles *
             preStakePercentage) / 100;
@@ -83,8 +93,97 @@ contract Savr is Ownable {
         group.totalCycles = totalCycles;
         group.preStakeAmount = preStakeAmount;
         group.createdAt = block.timestamp;
+        address[] memory members;
+
+        for (uint256 i = 0; i < totalCycles; i++) {
+            group.cycles.push(
+                Cycle({
+                    createdAt: block.timestamp + (i * cycleDuration),
+                    deadline: block.timestamp + ((i + 1) * cycleDuration),
+                    contributedAmount: 0,
+                    members: members
+                })
+            );
+        }
 
         emit GroupCreated(groupIdCounter, block.timestamp);
+    }
+
+    function contribute(uint256 groupId) external {
+        Group storage group = groups[groupId];
+        require(group.isActive[msg.sender], "Not a member");
+        require(group.members.length == group.totalCycles, "Must be full");
+        require(
+            !group.hasContributed[msg.sender],
+            "Already contributed for this cycle"
+        );
+
+        uint256 currentCycleIndex = group.currentCycle;
+        Cycle storage currentCycle = group.cycles[currentCycleIndex];
+
+        require(block.timestamp <= currentCycle.deadline, "Cycle expired");
+
+        stablecoin.transferFrom(
+            msg.sender,
+            address(this),
+            group.contributionAmount
+        );
+        group.cycles[currentCycleIndex].members.push(msg.sender);
+        group.hasContributed[msg.sender] = true;
+
+        currentCycle.contributedAmount += group.contributionAmount;
+
+        emit ContributionMade(groupId, msg.sender, block.timestamp);
+
+        if (allMembersContributed(group)) {
+            requestRandomRecipient(groupId);
+        }
+    }
+
+    function allMembersContributed(
+        Group storage group
+    ) internal view returns (bool) {
+        for (uint256 i = 0; i < group.members.length; i++) {
+            if (!group.hasContributed[group.members[i]]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function getGroups() external view returns (GroupInfo[] memory) {
+        GroupInfo[] memory allGroups = new GroupInfo[](groupIdCounter);
+
+        for (uint256 i = 1; i <= groupIdCounter; i++) {
+            Group storage group = groups[i];
+
+            address[] memory membersCopy = new address[](group.members.length);
+            for (uint256 j = 0; j < group.members.length; j++) {
+                membersCopy[j] = group.members[j];
+            }
+
+            Cycle[] memory cyclesCopy = new Cycle[](group.cycles.length);
+            for (uint256 k = 0; k < group.cycles.length; k++) {
+                cyclesCopy[k] = group.cycles[k];
+            }
+
+            allGroups[i - 1] = GroupInfo({
+                id: group.id,
+                name: group.name,
+                image: group.image,
+                contributionAmount: group.contributionAmount,
+                totalCycles: group.totalCycles,
+                currentCycle: group.currentCycle,
+                preStakeAmount: group.preStakeAmount,
+                admin: group.admin,
+                members: membersCopy,
+                currentRecipient: group.currentRecipient,
+                createdAt: group.createdAt,
+                cycles: cyclesCopy
+            });
+        }
+
+        return allGroups;
     }
 
     function joinGroup(uint256 groupId) external {
@@ -126,29 +225,6 @@ contract Savr is Ownable {
         }
     }
 
-    function contribute(uint256 groupId) external {
-        Group storage group = groups[groupId];
-        require(group.isActive[msg.sender], "Not a member");
-        require(group.members.length == group.totalCycles, "Must be full");
-        require(
-            !group.hasContributed[msg.sender],
-            "Already contributed for this cycle"
-        );
-
-        stablecoin.transferFrom(
-            msg.sender,
-            address(this),
-            group.contributionAmount
-        );
-        group.hasContributed[msg.sender] = true;
-
-        emit ContributionMade(groupId, msg.sender, block.timestamp);
-
-        if (allMembersContributed(group)) {
-            requestRandomRecipient(groupId);
-        }
-    }
-
     function requestRandomRecipient(uint256 groupId) internal {
         requestIdCounter++;
         requestIdToGroupId[requestIdCounter] = groupId;
@@ -175,13 +251,22 @@ contract Savr is Ownable {
 
         emit FundsDistributed(groupId, recipient, block.timestamp);
 
-        if (group.currentCycle == group.totalCycles) {
+        if (isCycleExpired(group)) {
             terminateGroup(groupId);
         }
     }
 
-    function terminateGroup(uint256 groupId) internal {
+    function isCycleExpired(Group storage group) internal view returns (bool) {
+        if (group.currentCycle >= group.cycles.length) return false;
+        return
+            (!allMembersContributed(group) &&
+                block.timestamp > group.cycles[group.currentCycle].deadline) ||
+            group.currentCycle == group.totalCycles;
+    }
+
+    function terminateGroup(uint256 groupId) public {
         Group storage group = groups[groupId];
+        require(isCycleExpired(group), "Group is active");
 
         uint256 remainingPreStake = group.preStakeAmount * group.members.length;
         uint256 perMemberShare = remainingPreStake / group.members.length;
@@ -192,46 +277,22 @@ contract Savr is Ownable {
                 stablecoin.transfer(member, perMemberShare);
             }
         }
-
+        if (
+            !allMembersContributed(group) &&
+            block.timestamp > group.cycles[group.currentCycle].deadline
+        ) {
+            for (
+                uint256 i = 0;
+                i < group.cycles[group.currentCycle].members.length;
+                i++
+            ) {
+                address member = group.cycles[group.currentCycle].members[i];
+                stablecoin.transfer(member, group.contributionAmount);
+            }
+        }
         delete groups[groupId];
 
         emit GroupTerminated(groupId, block.timestamp);
-    }
-
-    function allMembersContributed(
-        Group storage group
-    ) internal view returns (bool) {
-        bool hasContributed = true;
-        for (uint256 i = 0; i < group.members.length; i++) {
-            if (!group.hasContributed[group.members[i]]) {
-                hasContributed = false;
-            }
-        }
-        return hasContributed;
-    }
-
-    function getGroups(
-        uint256 groupId
-    ) external view returns (GroupInfo[] memory) {
-        uint256 length = groupId == 0 ? groupIdCounter : 1;
-        GroupInfo[] memory allGroups = new GroupInfo[](length);
-        for (uint256 i = 1; i <= length; i++) {
-            Group storage group = groups[i];
-            allGroups[i - 1] = GroupInfo({
-                id: group.id,
-                name: group.name,
-                image: group.image,
-                contributionAmount: group.contributionAmount,
-                totalCycles: group.totalCycles,
-                currentCycle: group.currentCycle,
-                preStakeAmount: group.preStakeAmount,
-                admin: group.admin,
-                members: group.members,
-                currentRecipient: group.currentRecipient,
-                createdAt: group.createdAt
-            });
-        }
-        return allGroups;
     }
 
     function fulfillRandomWords(
