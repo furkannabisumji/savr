@@ -13,7 +13,7 @@ contract Savr is Ownable {
     }
 
     struct Group {
-        uint id;
+        uint256 id;
         string name;
         string image;
         uint256 contributionAmount;
@@ -26,12 +26,12 @@ contract Savr is Ownable {
         mapping(address => bool) isActive;
         mapping(address => bool) hasReceivedFunds;
         address currentRecipient;
-        uint createdAt;
+        uint256 createdAt;
         Cycle[] cycles;
     }
 
     struct GroupInfo {
-        uint id;
+        uint256 id;
         string name;
         string image;
         uint256 contributionAmount;
@@ -41,7 +41,7 @@ contract Savr is Ownable {
         address admin;
         address[] members;
         address currentRecipient;
-        uint createdAt;
+        uint256 createdAt;
         Cycle[] cycles;
     }
 
@@ -53,21 +53,29 @@ contract Savr is Ownable {
         REQUESTED
     }
 
+    uint256 public totalVolume;
+    uint256 public uniqueUsers;
+    mapping(address => bool) isUser;
+
     uint256 public groupIdCounter;
-    mapping(uint256 => Group) public groups;
+    mapping(uint256 => Group) private groups;
 
     uint256 requestIdCounter;
-    mapping(uint256 => uint256) public requestIdToGroupId;
+    mapping(uint256 => uint256) requestIdToGroupId;
     mapping(uint256 => mapping(address => InviteStatus)) public invites;
-
-    event RandomWordsRequested(uint256 requestId, uint timestamp);
-    event GroupCreated(uint256 groupId, uint timestamp);
-    event MemberRequested(uint256 groupId, address member, uint timestamp);
-    event MemberInvited(uint256 groupId, address member, uint timestamp);
-    event MemberJoined(uint256 groupId, address member, uint timestamp);
-    event ContributionMade(uint256 groupId, address member, uint timestamp);
-    event FundsDistributed(uint256 groupId, address recipient, uint timestamp);
-    event GroupTerminated(uint256 groupId, uint timestamp);
+    mapping(uint256 => address[]) public invitesAddresses;
+    event RandomWordsRequested(uint256 requestId, uint256 timestamp);
+    event GroupCreated(uint256 groupId, uint256 timestamp);
+    event MemberRequested(uint256 groupId, address member, uint256 timestamp);
+    event MemberInvited(uint256 groupId, address member, uint256 timestamp);
+    event MemberJoined(uint256 groupId, address member, uint256 timestamp);
+    event ContributionMade(uint256 groupId, address member, uint256 timestamp);
+    event FundsDistributed(
+        uint256 groupId,
+        address recipient,
+        uint256 timestamp
+    );
+    event GroupTerminated(uint256 groupId, uint256 timestamp);
 
     constructor() {}
 
@@ -108,6 +116,11 @@ contract Savr is Ownable {
             );
         }
 
+        if (!isUser[msg.sender]) {
+            uniqueUsers++;
+            isUser[msg.sender] = true;
+        }
+
         emit GroupCreated(groupIdCounter, block.timestamp);
     }
 
@@ -134,7 +147,7 @@ contract Savr is Ownable {
         group.hasContributed[msg.sender] = true;
 
         currentCycle.contributedAmount += group.contributionAmount;
-
+        totalVolume = totalVolume + group.contributionAmount;
         emit ContributionMade(groupId, msg.sender, block.timestamp);
 
         if (allMembersContributed(group)) {
@@ -153,36 +166,44 @@ contract Savr is Ownable {
         return true;
     }
 
-    function getGroups() external view returns (GroupInfo[] memory) {
-        GroupInfo[] memory allGroups = new GroupInfo[](groupIdCounter);
+    function getGroups(
+        uint256 groupId,
+        address admin
+    ) external view returns (GroupInfo[] memory) {
+        GroupInfo[] memory allGroups = new GroupInfo[](
+            groupId != 0 ? groupIdCounter : 1
+        );
+        uint256 length = groupId != 0 ? groupIdCounter : 1;
+        for (uint256 i = 1; i <= length; i++) {
+            Group storage group = groups[groupId != 0 ? i : groupId];
+            if (admin == address(0) || (admin == group.admin)) {
+                address[] memory membersCopy = new address[](
+                    group.members.length
+                );
+                for (uint256 j = 0; j < group.members.length; j++) {
+                    membersCopy[j] = group.members[j];
+                }
 
-        for (uint256 i = 1; i <= groupIdCounter; i++) {
-            Group storage group = groups[i];
+                Cycle[] memory cyclesCopy = new Cycle[](group.cycles.length);
+                for (uint256 k = 0; k < group.cycles.length; k++) {
+                    cyclesCopy[k] = group.cycles[k];
+                }
 
-            address[] memory membersCopy = new address[](group.members.length);
-            for (uint256 j = 0; j < group.members.length; j++) {
-                membersCopy[j] = group.members[j];
+                allGroups[i - 1] = GroupInfo({
+                    id: group.id,
+                    name: group.name,
+                    image: group.image,
+                    contributionAmount: group.contributionAmount,
+                    totalCycles: group.totalCycles,
+                    currentCycle: group.currentCycle,
+                    preStakeAmount: group.preStakeAmount,
+                    admin: group.admin,
+                    members: membersCopy,
+                    currentRecipient: group.currentRecipient,
+                    createdAt: group.createdAt,
+                    cycles: cyclesCopy
+                });
             }
-
-            Cycle[] memory cyclesCopy = new Cycle[](group.cycles.length);
-            for (uint256 k = 0; k < group.cycles.length; k++) {
-                cyclesCopy[k] = group.cycles[k];
-            }
-
-            allGroups[i - 1] = GroupInfo({
-                id: group.id,
-                name: group.name,
-                image: group.image,
-                contributionAmount: group.contributionAmount,
-                totalCycles: group.totalCycles,
-                currentCycle: group.currentCycle,
-                preStakeAmount: group.preStakeAmount,
-                admin: group.admin,
-                members: membersCopy,
-                currentRecipient: group.currentRecipient,
-                createdAt: group.createdAt,
-                cycles: cyclesCopy
-            });
         }
 
         return allGroups;
@@ -266,7 +287,7 @@ contract Savr is Ownable {
         emit FundsDistributed(groupId, recipient, block.timestamp);
     }
 
-    function isGroupExpired(uint groupId) public view returns (bool) {
+    function isGroupExpired(uint256 groupId) public view returns (bool) {
         Group storage group = groups[groupId];
 
         if (group.currentCycle >= group.totalCycles) {
