@@ -1,9 +1,18 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { FaPlus } from "react-icons/fa";
 import { InviteDataForm } from "./InviteForm";
+import { useReadContract } from "wagmi";
+import config from "@/constants/config.json";
+import { useParams } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 export function Invites({ groupId }: { groupId: number }) {
+  const { slug } = useParams();
+  const { data: invites }: { data: string[] | undefined } = useReadContract({
+    abi: config.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.savr.address as `0x${string}`, // Contract address
+    functionName: "getInvitesAddresses",
+    args: [slug],
+  });
+
   return (
     <div className="flex flex-col h-full gap-5">
       <div className="h-[8%] flex  ">
@@ -11,7 +20,7 @@ export function Invites({ groupId }: { groupId: number }) {
           <div className=" w-[50%] space-y-1 flex justify-start items-center gap-2">
             {" "}
             Member
-            <InviteDataForm groupId={groupId} />
+            <InviteDataForm />
           </div>
 
           <div className=" w-[50%] text-right font-medium pr-4 gap-3  ">
@@ -20,14 +29,17 @@ export function Invites({ groupId }: { groupId: number }) {
         </div>
       </div>
       <div className="space-y-8  h-[92%]  overflow-y-auto px-4 ">
-        {Array.from({ length: 10 }).map((_, index) => (
+        {invites?.map((addr, index) => (
           <div className="flex items-center gap-2" key={index}>
             <div className=" w-[50%] space-y-1">
-              <p className="text-sm font-medium leading-none">0x0ie...30</p>
+              <p className="text-sm font-medium leading-none">
+                {/* <WalletAddress address={addr} /> */}
+                {addr}
+              </p>
             </div>
 
             <div className=" w-[50%] text-right font-medium text-primary">
-              Accepted
+              member
             </div>
           </div>
         ))}

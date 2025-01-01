@@ -1,18 +1,74 @@
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ProfileImage from "./components/ProfileImage";
-import Link from "next/link";
-import { PiMoney, PiRecycle, PiUsersThreeBold } from "react-icons/pi";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useAccount, useReadContract } from "wagmi";
+import { Circle } from "@/types";
+import config from "@/constants/config.json";
+import { useEffect, useState } from "react";
+import CircelCard from "../components/CircleCard";
+import { Suspense } from "react";
 
-export default async function Console() {
+export default function Account() {
+  const searchParams = useSearchParams();
+  const address = searchParams?.get("address") || useAccount().address;
+
+  const [circlesByAdmin, setCirclesByAdmin] = useState<Circle[]>([]);
+  const [totalMemberCycles, setTotalMemberCycles] = useState<number>(0);
+
+  const { data: circles }: { data: Circle[] | undefined } = useReadContract({
+    abi: config.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.savr.address as `0x${string}`, // Contract address
+    functionName: "getGroups",
+    args: [1, "0x0000000000000000000000000000000000000000"],
+  });
+
+  // Function to calculate all circles with a particular admin
+  const getCirclesByAdmin = (
+    circles: Circle[],
+    adminAddress: string,
+  ): Circle[] => {
+    return circles.filter(
+      (circle) => circle.admin.toLowerCase() === adminAddress.toLowerCase(),
+    );
+  };
+
+  // Function to count total cycles for a particular address
+  const countCyclesByMemberAddress = (
+    circles: Circle[],
+    address: string,
+  ): number => {
+    let totalCycles = 0;
+
+    circles.forEach((circle) => {
+      circle.cycles.forEach((cycle) => {
+        if (cycle.members.includes(address.toLowerCase())) {
+          totalCycles += 1;
+        }
+      });
+    });
+
+    return totalCycles;
+  };
+
+  useEffect(() => {
+    if (!address || !circles) return;
+    // Get circles for a specific admin
+    const circlesWithAdmin = getCirclesByAdmin(circles, address);
+    setCirclesByAdmin(circlesWithAdmin);
+
+    // Count cycles for a specific member address
+    const memberCycleCount = countCyclesByMemberAddress(circles, address);
+    setTotalMemberCycles(memberCycleCount);
+  }, [circles]);
+
   return (
     <main className="h-full flex flex-col gap-6 overflow-y-auto  ">
       {/* Profile */}
@@ -91,7 +147,7 @@ export default async function Console() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+2350</div>
+            <div className="text-2xl font-bold">+{circlesByAdmin.length}</div>
             <p className="text-xs text-muted-foreground">
               Total circles created.
             </p>
@@ -100,7 +156,7 @@ export default async function Console() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-primary">
-              Users
+              Total cycles
             </CardTitle>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -112,13 +168,11 @@ export default async function Console() {
               strokeWidth="2"
               className="h-4 w-4 text-muted-foreground"
             >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+125</div>
+            <div className="text-2xl font-bold">+{totalMemberCycles}</div>
             <p className="text-xs text-muted-foreground">
               Total registered users.
             </p>
@@ -169,43 +223,8 @@ export default async function Console() {
 
       {/*  data */}
       <section className=" xl:h-[54%] grid lg:grid-cols-2 xl:grid-cols-3  gap-4 pb-10 px-3 w-full xl:overflow-y-auto">
-        {Array.from({ length: 20 }).map((_, index) => (
-          <Link href={`/console/circles/${index}`} key={index}>
-            <Card className="col-span-1 h-[200px] py-2 px-2 rounded-md cursor-pointer">
-              <CardContent className=" h-full flex pb-0 px-0 gap-3">
-                <div className="bg-gray-300 w-[30%] h-full rounded-md"></div>
-                <div className="flex flex-grow flex-col ">
-                  <div className="flex justify-between items-center  h-[20%] border-b">
-                    <h3 className="font-semibold text-sm ">Web 3 Legends</h3>
-                    <small className="text-gray-500">2 months ago</small>
-                  </div>
-                  <div className="flex justify-between items-center h-[20%]">
-                    <h3 className="font-semibold text-sm flex items-center  gap-2 ">
-                      <PiRecycle size={15} /> <span>Cycles:</span>
-                    </h3>
-                    <small className="text-gray-500">20.0</small>
-                  </div>
-                  <div className="flex justify-between items-center h-[20%]">
-                    <h3 className="font-semibold text-sm flex items-center gap-2 ">
-                      <PiUsersThreeBold size={15} /> <span>Members:</span>{" "}
-                    </h3>
-                    <small className="text-gray-500">1.2k</small>
-                  </div>
-
-                  <div className="flex justify-between items-center h-[20%]">
-                    <h3 className="font-semibold text-sm flex items-center gap-2 ">
-                      <PiMoney size={15} /> <span>Contributions:</span>
-                    </h3>
-                    <small className="text-gray-500">20</small>
-                  </div>
-
-                  <div className="flex justify-end items-center h-[20%] border-t pt-2">
-                    <Button className="rounded-none py-2 w-[30%] ">Join</Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+        {circlesByAdmin?.map((circle, index) => (
+          <CircelCard circle={circle} key={index} />
         ))}
       </section>
     </main>

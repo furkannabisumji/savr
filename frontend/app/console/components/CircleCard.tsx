@@ -29,7 +29,7 @@ export default function CircelCard({ circle }: { circle: Circle }) {
     <Card className="col-span-1 h-[200px] py-2 px-2 rounded-md ">
       <CardContent className=" h-full p-0 flex">
         <Link
-          href={`/console/circles/${circle.id}`}
+          href={`/console/circles/${circle.id}?admin=${circle.admin}`}
           className="bg-gray-300 w-[30%] h-full block rounded-md relative"
         >
           <Image
@@ -44,7 +44,7 @@ export default function CircelCard({ circle }: { circle: Circle }) {
 
         <div className="flex flex-grow flex-col pl-1 ">
           <Link
-            href={`/console/circles/${circle.id}`}
+            href={`/console/circles/${circle.id}?admin=${circle.admin}`}
             className="flex justify-between items-center  h-[20%] border-b "
           >
             <h3 className="font-semibold text-sm hover:underline">
@@ -86,7 +86,8 @@ export default function CircelCard({ circle }: { circle: Circle }) {
                     Number(circle.preStakeAmount),
                     Number(formatEther(circle.contributionAmount)),
                   ),
-                )}
+                )}{" "}
+                USDT
               </span>
             </p>
             <JoinCircleButton
@@ -94,6 +95,8 @@ export default function CircelCard({ circle }: { circle: Circle }) {
               name={circle.name}
               prestake={circle.preStakeAmount}
               amount={circle.contributionAmount}
+              admin={circle.admin}
+              members={circle.members}
             />
           </div>
         </div>

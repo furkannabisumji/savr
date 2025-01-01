@@ -16,6 +16,7 @@ import {
 import { ConnectKitButton } from "connectkit";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 
 export default function ConsoleLayout({
   children,
@@ -77,7 +78,9 @@ export default function ConsoleLayout({
               </Breadcrumb>
             </div>
 
-            <div className="h-[98%] ">{children}</div>
+            <Suspense fallback={<div>Loading...</div>}>
+              <div className="h-[98%] ">{children}</div>
+            </Suspense>
           </div>
         </SidebarInset>
       </SidebarProvider>

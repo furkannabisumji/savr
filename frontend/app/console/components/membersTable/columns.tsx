@@ -9,6 +9,7 @@ import WalletAddress from "../WalletAddress";
 import TimeAgo from "../TimeToGo";
 import JoinCircleButton from "../JoinCircleButton";
 import { formatEther } from "viem";
+import TableBtns from "./TableBtns";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -23,7 +24,7 @@ const formatDate = (dt: Date) => {
 
 export const columns: ColumnDef<Circle>[] = [
   {
-    accessorKey: "circle",
+    accessorKey: "name",
     header: ({ column }) => {
       return (
         <div className="text-center font-medium">
@@ -40,49 +41,51 @@ export const columns: ColumnDef<Circle>[] = [
       );
     },
     cell: ({ row }) => {
-      return <div className="text-center font-medium">{row.original.name}</div>;
+      return (
+        <div className="text-center font-medium">{row.getValue("name")}</div>
+      );
     },
   },
   {
-    accessorKey: "owner",
+    accessorKey: "admin",
     header: () => <div className="text-center">Owner</div>,
     cell: ({ row }) => {
       return (
         <div className="text-center font-medium">
-          {<WalletAddress address={row.original.admin} />}
+          {<WalletAddress address={row.getValue("admin")} />}
         </div>
       );
     },
   },
   {
-    accessorKey: "created",
+    accessorKey: "createdAt",
     header: () => <div className="text-center">Created</div>,
     cell: ({ row }) => {
       return (
         <div className="text-center font-medium">
-          <TimeAgo timestamp={Number(row.original.createdAt) * 1000} />
+          <TimeAgo timestamp={Number(row.getValue("createdAt")) * 1000} />
         </div>
       );
     },
   },
   {
-    accessorKey: "volume",
+    accessorKey: "contributionAmount",
     header: () => <div className="text-center">Amount</div>,
     cell: ({ row }) => {
       return (
         <div className="text-center font-medium">
-          {formatEther(row.original.contributionAmount)}
+          {formatEther(row.getValue("contributionAmount"))}
         </div>
       );
     },
   },
   {
-    accessorKey: "cycles",
+    accessorKey: "totalCycles",
     header: () => <div className="text-center">Cycles</div>,
     cell: ({ row }) => {
       return (
         <div className="text-center font-medium">
-          {row.original.totalCycles}
+          {row.getValue("totalCycles")}
         </div>
       );
     },
@@ -106,12 +109,14 @@ export const columns: ColumnDef<Circle>[] = [
     header: () => <div className="text-center">Action</div>,
     cell: ({ row }) => {
       return (
-        <div className="text-center font-medium">
-          <JoinCircleButton
-            circleId={row.original.id}
-            name={row.original.name}
-            prestake={row.original.preStakeAmount}
-            amount={row.original.contributionAmount}
+        <div className="text-center font-medium flex justify-center">
+          <TableBtns
+            circleId={row.getValue("id")}
+            name={row.getValue("name")}
+            prestake={row.getValue("preStakeAmount")}
+            amount={row.getValue("contributionAmount")}
+            members={row.getValue("members")}
+            admin={row.getValue("admin")}
           />
         </div>
       );
