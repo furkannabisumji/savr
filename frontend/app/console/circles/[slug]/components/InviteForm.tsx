@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FaPlus } from "react-icons/fa";
 
-export function InviteDataForm({ groupId }: { groupId: number }) {
+export function InviteDataForm({ section }: { section?: string }) {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -32,9 +32,18 @@ export function InviteDataForm({ groupId }: { groupId: number }) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="secondary" className="p-2">
-            <FaPlus size={20} />
-          </Button>
+          <div className="w-[50%]">
+            {!section && (
+              <Button variant="secondary" className="p-2">
+                <FaPlus size={20} />
+              </Button>
+            )}
+            {section == "btn" && (
+              <Button variant="outline" className="rounded-none py-2 w-full ">
+                Invite user
+              </Button>
+            )}
+          </div>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -43,7 +52,7 @@ export function InviteDataForm({ groupId }: { groupId: number }) {
               Provide address of the user you wish to invite.
             </DialogDescription>
           </DialogHeader>
-          <InviteForm setOpen={setOpen} groupId={groupId} />
+          <InviteForm setOpen={setOpen} />
         </DialogContent>
       </Dialog>
     );
@@ -52,9 +61,18 @@ export function InviteDataForm({ groupId }: { groupId: number }) {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="secondary" className="p-2">
-          <FaPlus size={20} />
-        </Button>
+        <div className="w-[50%]">
+          {!section && (
+            <Button variant="secondary" className="p-2">
+              <FaPlus size={20} />
+            </Button>
+          )}
+          {section == "btn" && (
+            <Button variant="outline" className="rounded-none py-2 w-full">
+              Invite user
+            </Button>
+          )}
+        </div>
       </DrawerTrigger>
 
       <DrawerContent>
@@ -64,7 +82,7 @@ export function InviteDataForm({ groupId }: { groupId: number }) {
             Provide address of the user you wish to invite.
           </DrawerDescription>
         </DrawerHeader>
-        <InviteForm className="px-4" setOpen={setOpen} groupId={groupId} />
+        <InviteForm className="px-4" setOpen={setOpen} />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>
@@ -82,10 +100,10 @@ import { useParams } from "next/navigation";
 
 interface InviteFormProps extends React.ComponentProps<"form"> {
   setOpen: (open: boolean) => void;
-  groupId: number;
+  section?: string;
 }
 
-function InviteForm({ className, setOpen, groupId, ...rest }: InviteFormProps) {
+function InviteForm({ className, setOpen, section, ...rest }: InviteFormProps) {
   const [address, setAddress] = React.useState<string>("");
   const [creating, setCreating] = React.useState(false);
   const { toast } = useToast();

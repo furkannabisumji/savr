@@ -20,8 +20,8 @@ import { Members } from "./components/Members";
 import { Terms } from "./components/Terms";
 import { FaRegAddressCard } from "react-icons/fa";
 import { Invites } from "./components/Invites";
-import { CircleData } from "@/types";
-import { useReadContract, useWriteContract } from "wagmi";
+import { Circle, CircleData } from "@/types";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import config from "@/constants/config.json";
 import { useParams } from "next/navigation";
 import Image from "next/image";
@@ -29,19 +29,22 @@ import { formatEther } from "viem";
 import WalletAddress from "../../components/WalletAddress";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { InviteDataForm } from "./components/InviteForm";
+import TimeAgo from "../../components/TimeToGo";
 
 export default function CircleDetail() {
   const { slug } = useParams();
   const { toast } = useToast();
   const { writeContractAsync: contributeFunction } = useWriteContract();
   const [isContributing, setIsContributing] = useState(false);
+  const { address } = useAccount();
 
-  const { data: selectedCircle }: { data: CircleData | undefined } =
+  const { data: selectedCircle }: { data: Circle[] | undefined } =
     useReadContract({
       abi: config.savr.abi, // Contract ABI to interact with the smart contract
       address: config.savr.address as `0x${string}`, // Contract address
-      functionName: "groups",
-      args: [slug],
+      functionName: "getGroups",
+      args: [slug, address],
     });
 
   const contribute = async () => {
@@ -86,8 +89,8 @@ export default function CircleDetail() {
       <section className="h-[10%] flex gap-2 items-center">
         <div className="h-full w-[100px] bg-gray-400 relative">
           <Image
-            src={`${process.env.NEXT_PUBLIC_LIGHTHOUSE_GATE_WAY}/${selectedCircle && selectedCircle[2]}`} // Dynamic image source
-            alt={(selectedCircle && selectedCircle[1]) || "A circle image"} // Better alt text using dynamic name if available
+            src={`${process.env.NEXT_PUBLIC_LIGHTHOUSE_GATE_WAY}/${selectedCircle && selectedCircle[0].image}`} // Dynamic image source
+            alt={(selectedCircle && selectedCircle[0].name) || "A circle image"} // Better alt text using dynamic name if available
             layout="fill" // Makes the image fill the container
             objectFit="cover" // Ensures the image covers the container without distortion
             priority={true} // Use priority for images above the fold
@@ -97,7 +100,7 @@ export default function CircleDetail() {
         <div className="h-full flex flex-col justify-center">
           <div>
             <h2 className=" font-bold text-3xl">
-              {selectedCircle && selectedCircle[1]}
+              {selectedCircle && selectedCircle[0].name}
             </h2>
             <p className="flex  text-sm gap-3">
               Created: <span className="text-gray-500">23 Dec 2024</span>
@@ -127,7 +130,9 @@ export default function CircleDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${selectedCircle && formatEther(selectedCircle[3])}
+              $
+              {selectedCircle &&
+                formatEther(selectedCircle[0].contributionAmount)}
             </div>
             <p className="text-xs text-muted-foreground">
               +20.1% from last month
@@ -156,7 +161,7 @@ export default function CircleDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              +${selectedCircle && selectedCircle[8].length}
+              +${selectedCircle && selectedCircle[0].members.length}
             </div>
             <p className="text-xs text-muted-foreground">
               +180.1% from last month
@@ -185,7 +190,7 @@ export default function CircleDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              +{selectedCircle && formatEther(selectedCircle[4])}
+              +{selectedCircle && selectedCircle[0].cycles.length}
             </div>
             <p className="text-xs text-muted-foreground">
               Avg of 90% participation
@@ -212,7 +217,7 @@ export default function CircleDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {selectedCircle && formatEther(selectedCircle[5])}
+              {selectedCircle && formatEther(selectedCircle[0].currentCycle)}
             </div>
             <p className="text-xs text-muted-foreground">Current cycle count</p>
           </CardContent>
@@ -234,9 +239,17 @@ export default function CircleDetail() {
 
                   <div className="flex justify-between items-center h-[16.66%]">
                     <h3 className="font-semibold text-sm flex items-center  gap-2 ">
-                      <PiRecycle size={15} /> <span>Funding ends :</span>
+                      <PiRecycle size={15} /> <span>Created :</span>
                     </h3>
-                    <small className="text-gray-500">2 day 3 hours</small>
+                    <small className="text-gray-500">
+                      <TimeAgo
+                        timestamp={
+                          selectedCircle
+                            ? Number(selectedCircle[0].createdAt) * 1000
+                            : 0
+                        }
+                      />
+                    </small>
                   </div>
 
                   <div className="flex justify-between items-center h-[16.66%]">
@@ -245,7 +258,7 @@ export default function CircleDetail() {
                     </h3>
                     <small className="text-gray-500">
                       <WalletAddress
-                        address={selectedCircle ? selectedCircle[8] : ""}
+                        address={selectedCircle ? selectedCircle[0].admin : ""}
                       />
                     </small>
                   </div>
@@ -253,7 +266,11 @@ export default function CircleDetail() {
                     <h3 className="font-semibold text-sm flex items-center gap-2 ">
                       <PiUsersThreeBold size={15} /> <span>Members:</span>{" "}
                     </h3>
-                    <small className="text-gray-500">1.2k</small>
+                    <small className="text-gray-500">
+                      {selectedCircle
+                        ? selectedCircle[0].cycles[0].members.length
+                        : ""}
+                    </small>
                   </div>
 
                   <div className="flex justify-between items-center h-[16.66%]">
@@ -262,17 +279,14 @@ export default function CircleDetail() {
                     </h3>
                     <small className="text-gray-500">
                       {" "}
-                      $ {selectedCircle && formatEther(selectedCircle[3])}
+                      ${" "}
+                      {selectedCircle &&
+                        formatEther(selectedCircle[0].contributionAmount)}
                     </small>
                   </div>
 
                   <div className="flex justify-between items-center h-[16.66%] gap-3 border-t pt-5">
-                    <Button
-                      variant="outline"
-                      className="rounded-none py-2 w-[50%] "
-                    >
-                      Opt-out
-                    </Button>
+                    <InviteDataForm section="btn" />
                     <Button
                       className="rounded-none py-2 w-[50%] "
                       onClick={contribute}
