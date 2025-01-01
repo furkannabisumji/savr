@@ -19,7 +19,7 @@ export default function Circles() {
     abi: config.savr.abi, // Contract ABI to interact with the smart contract
     address: config.savr.address as `0x${string}`, // Contract address
     functionName: "getGroups",
-    args: [3, "0x0000000000000000000000000000000000000000"],
+    args: [1, "0x0000000000000000000000000000000000000000"],
   });
 
   return (

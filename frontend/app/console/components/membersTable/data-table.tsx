@@ -81,10 +81,10 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center justify-between gap-4 py-4">
         <Input
           placeholder="Filter circles..."
-          value={(table.getColumn("circle")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("circle")?.setFilterValue(event.target.value)
-          }
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          onChange={(event) => {
+            return table.getColumn("name")?.setFilterValue(event.target.value);
+          }}
           className="max-w-sm"
         />
 
@@ -132,7 +132,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No circles create yet.
+                  No circles found.
                 </TableCell>
               </TableRow>
             )}

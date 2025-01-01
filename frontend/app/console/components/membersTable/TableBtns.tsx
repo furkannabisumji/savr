@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button"; // Assuming you have a custom b
 import config from "@/constants/config.json"; // Assuming your contract's config is stored here
 import { useToast } from "@/hooks/use-toast"; // Assuming you have a custom toast hook for notifications
 import { formatEther } from "viem";
+import { InviteDataForm } from "../../circles/[slug]/components/InviteForm";
 import Link from "next/link";
 
 // This is the component
-const JoinCircleButton = ({
+const TableBtns = ({
   circleId,
   name,
   prestake,
@@ -21,13 +22,12 @@ const JoinCircleButton = ({
   prestake: bigint;
   amount: bigint;
   className?: string;
-  admin?: string;
+  admin: string;
   members: string[];
 }) => {
   const [creating, setCreating] = useState(false);
   const { toast } = useToast();
   const { address } = useAccount();
-
   // Get the write function from useWriteContract (make sure to adjust this based on your needs)
   const { writeContractAsync: joinFunction } = useWriteContract();
 
@@ -87,6 +87,10 @@ const JoinCircleButton = ({
 
   return (
     <>
+      {!invites?.includes(address as string) && (
+        <InviteDataForm section="btn" />
+      )}
+
       {invites?.includes(address as string) &&
         !members.includes(address as string) && (
           <Button onClick={join} disabled={creating} className={className}>
@@ -107,4 +111,4 @@ const JoinCircleButton = ({
   );
 };
 
-export default JoinCircleButton;
+export default TableBtns;

@@ -5,15 +5,100 @@ import { DataTable } from "./components/membersTable/data-table";
 import { useReadContract } from "wagmi";
 import config from "@/constants/config.json";
 import { Circle } from "@/types";
+import { useEffect, useState } from "react";
+import { formatEther } from "viem";
 
 export default function Console() {
+  const [totalUniqueMembers, setTotalUniqueMembers] = useState<number>(0);
+  const [totalActiveCycles, setTotalActiveCycles] = useState<number>(0);
+
   const { data: circles }: { data: Circle[] | undefined } = useReadContract({
     abi: config.savr.abi, // Contract ABI to interact with the smart contract
     address: config.savr.address as `0x${string}`, // Contract address
     functionName: "getGroups",
-    args: [3, "0x0000000000000000000000000000000000000000"],
+    args: [1, "0x0000000000000000000000000000000000000000"],
+  });
+  const { data: volume }: { data: bigint | undefined } = useReadContract({
+    abi: config.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.savr.address as `0x${string}`, // Contract address
+    functionName: "totalVolume",
   });
 
+  // Function to get active cycles across all circles
+  const getActiveCyclesCount = (circles: Circle[]): number => {
+    const currentTimestamp = BigInt(Date.now()); // Current timestamp in milliseconds as BigInt
+
+    // Count active cycles across all circles
+    let activeCycleCount = 0;
+
+    circles.forEach((circle) => {
+      circle.cycles.forEach((cycle) => {
+        // Convert cycle's deadline from seconds to milliseconds
+        const deadlineInMilliseconds = BigInt(cycle.deadline) * BigInt(1000);
+        const createdAtInMilliseconds = BigInt(cycle.createdAt) * BigInt(1000);
+
+        // Check if current time is between createdAt and deadline (active cycle)
+        if (
+          createdAtInMilliseconds <= currentTimestamp &&
+          currentTimestamp <= deadlineInMilliseconds
+        ) {
+          activeCycleCount += 1;
+        }
+      });
+    });
+
+    return activeCycleCount; // Return the count of active cycles
+  };
+
+  // Function to get total unique members across all circles
+  const getTotalUniqueMembers = (circles: Circle[]): number => {
+    const uniqueMembers = new Set<string>(); // A set to store unique members
+
+    circles.forEach((circle) => {
+      uniqueMembers.add(circle.admin); // Add admin to the unique members set
+
+      circle.members.forEach((member) => {
+        uniqueMembers.add(member); // Add members to the set (duplicates are automatically handled)
+      });
+    });
+
+    return uniqueMembers.size; // Return the count of unique members
+  };
+
+  const transformCircleData = (circles?: Circle[]): any[] => {
+    // Check if circles is undefined or empty
+    if (!circles || circles.length === 0) {
+      return []; // Return an empty array if no circles are provided
+    }
+
+    return circles.map((circle) => ({
+      id: circle.id,
+      name: circle.name,
+      admin: circle.admin,
+      contributionAmount: circle.contributionAmount.toString(), // Convert BigInt to string
+      preStakeAmount: circle.preStakeAmount.toString(),
+      totalCycles: circle.totalCycles.toString(),
+      currentCycle: circle.currentCycle.toString(),
+      currentRecipient: circle.currentRecipient,
+      createdAt: new Date(Number(circle.createdAt) * 1000).toLocaleString(), // Convert from seconds to a human-readable date
+      cycles: circle.cycles.length, // Just the number of cycles
+      members: circle.members.join(", "), // Join members into a string
+      image: circle.image,
+    }));
+  };
+
+  useEffect(() => {
+    // Check total unique members and total active cycles when selectedCircle changes
+    if (circles && circles.length > 0) {
+      const uniqueMembers = getTotalUniqueMembers(circles);
+      const activeCycles = getActiveCyclesCount(circles);
+
+      setTotalUniqueMembers(uniqueMembers); // Set the state with total unique members
+      setTotalActiveCycles(activeCycles); // Set the state with total active cycles
+    }
+  }, [circles]); // Run this effect when selectedCircle changes
+
+  console.log(circles);
   return (
     <main className="h-full flex flex-col overflow-y-auto relative  ">
       {/* summary  */}
@@ -37,7 +122,9 @@ export default function Console() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$45,231.89</div>
+            <div className="text-2xl font-bold">
+              ${volume && formatEther(volume)}
+            </div>
             <p className="text-xs text-muted-foreground">
               Accumulated transactions.
             </p>
@@ -64,7 +151,9 @@ export default function Console() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+2350</div>
+            <div className="text-2xl font-bold">
+              +{circles ? circles.length : 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               Total circles created.
             </p>
@@ -91,7 +180,7 @@ export default function Console() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+125</div>
+            <div className="text-2xl font-bold">+{totalUniqueMembers}</div>
             <p className="text-xs text-muted-foreground">
               Total registered users.
             </p>
@@ -116,8 +205,8 @@ export default function Console() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2 Days</div>
-            <p className="text-xs text-muted-foreground">To end 25 Dec 2025</p>
+            <div className="text-2xl font-bold">{totalActiveCycles}</div>
+            <p className="text-xs text-muted-foreground">As at now.</p>
           </CardContent>
         </Card>
       </section>
