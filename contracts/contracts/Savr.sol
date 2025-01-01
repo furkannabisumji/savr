@@ -58,12 +58,12 @@ contract Savr is Ownable {
     mapping(address => bool) isUser;
 
     uint256 public groupIdCounter;
-    mapping(uint256 => Group) private groups;
+    mapping(uint256 => Group) groups;
 
     uint256 requestIdCounter;
     mapping(uint256 => uint256) requestIdToGroupId;
     mapping(uint256 => mapping(address => InviteStatus)) public invites;
-    mapping(uint256 => address[]) public invitesAddresses;
+    mapping(uint256 => address[]) invitesAddresses;
     event RandomWordsRequested(uint256 requestId, uint256 timestamp);
     event GroupCreated(uint256 groupId, uint256 timestamp);
     event MemberRequested(uint256 groupId, address member, uint256 timestamp);
@@ -207,6 +207,10 @@ contract Savr is Ownable {
         }
 
         return allGroups;
+    }
+
+    function getInvitesAddresses(uint256 groupId) public view returns(address[] memory){
+        return invitesAddresses[groupId];
     }
 
     function joinGroup(uint256 groupId) external {
