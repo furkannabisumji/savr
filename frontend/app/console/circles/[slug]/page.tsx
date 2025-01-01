@@ -83,7 +83,6 @@ export default function CircleDetail() {
     }
   };
 
-  console.log(selectedCircle);
   return (
     <main className="h-full flex flex-col overflow-y-auto relative ">
       <section className="h-[10%] flex gap-2 items-center">
