@@ -250,6 +250,7 @@ contract Savr is Ownable {
             invites[groupId][member] = InviteStatus.REQUESTED;
             emit MemberRequested(groupId, member, block.timestamp);
         }
+        invitesAddresses[groupId].push(member);
     }
 
     function requestRandomRecipient(uint256 groupId) internal {
