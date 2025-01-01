@@ -1,27 +1,25 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ProfileImage from "./components/ProfileImage";
-import Link from "next/link";
-import { PiMoney, PiRecycle, PiUsersThreeBold } from "react-icons/pi";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useAccount, useReadContract } from "wagmi";
 import { Circle } from "@/types";
 import config from "@/constants/config.json";
 import { useEffect, useState } from "react";
 import CircelCard from "../components/CircleCard";
+import { Suspense } from "react";
 
 export default function Account() {
   const searchParams = useSearchParams();
-  const address = searchParams.get("address") || useAccount().address;
+  const address = searchParams?.get("address") || useAccount().address;
+
   const [circlesByAdmin, setCirclesByAdmin] = useState<Circle[]>([]);
   const [totalMemberCycles, setTotalMemberCycles] = useState<number>(0);
 
