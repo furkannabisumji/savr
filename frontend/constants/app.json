@@ -1,0 +1,11 @@
+{
+  "__typename": "App",
+  "address": "0x815bdD1B0959a6a344e35F4B833278F66d847621",
+  "graphAddress": null,
+  "sponsorshipAddress": null,
+  "defaultFeedAddress": null,
+  "namespaceAddress": null,
+  "treasuryAddress": null,
+  "createdAt": "2025-01-02T19:06:53+00:00",
+  "metadata": null
+}

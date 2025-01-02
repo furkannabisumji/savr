@@ -1,11 +1,11 @@
 "use client";
 
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ConnectKitButton } from "connectkit";
+import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { FaUser } from "react-icons/fa";
+
+import { ConnectWalletButton } from "@/components/ConnectWalletButton";
+import { WelcomeToSavr } from "@/components/WelcomeToSavr";
 
 export default function Home() {
   return (
@@ -13,7 +13,7 @@ export default function Home() {
       <nav className="h-[8%] flex justify-between items-center px-10 bg-white">
         <h2 className="font-bold text-xl">SAVR</h2>
 
-        <ConnectKitButton />
+        <ConnectWalletButton />
       </nav>
       <section className="h-[92%] grid xl:grid-cols-2">
         <div className="h-full flex flex-col justify-center items-center  ">
@@ -46,22 +46,7 @@ export default function Home() {
           </Link>
         </div>
         <div className="h-full hidden xl:flex flex-col justify-center items-center bg-zinc-100  ">
-          <div className="bg-white rounded-xl h-80 w-72 p-7">
-            <div className="h-full rounded-xl w-full bg-green-200 flex items-center justify-center">
-              <FaUser size={200} className="text-green-500" />
-            </div>
-          </div>
-
-          <div className=" w-full max-w-sm items-center  flex flex-col gap-2 py-5">
-            <Input
-              type="text"
-              placeholder="Choose username"
-              className="bg-background h-12 outline-none "
-            />
-            <Button type="submit" className="w-full h-12 font-semibold">
-              Mint
-            </Button>
-          </div>
+          <WelcomeToSavr />
         </div>
       </section>
     </main>
