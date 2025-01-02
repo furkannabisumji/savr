@@ -3,6 +3,7 @@ import { Roboto, Open_Sans } from "next/font/google";
 import "./globals.css";
 import { Web3Provider } from "./Web3Provider";
 import { Toaster } from "@/components/ui/toaster";
+import { CustomLensProvider } from "./CustomLensProvider";
 
 // Configure Roboto font
 const roboto = Roboto({
@@ -34,7 +35,7 @@ export default function RootLayout({
       <body
         className={`${roboto.variable} ${openSans.variable} antialiased`} // Apply both fonts globally
       >
-        <Web3Provider>{children}</Web3Provider>
+        <CustomLensProvider>{children}</CustomLensProvider>
         <Toaster />
       </body>
     </html>
