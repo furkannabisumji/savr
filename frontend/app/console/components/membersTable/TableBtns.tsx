@@ -30,6 +30,7 @@ const TableBtns = ({
   const { address } = useAccount();
   // Get the write function from useWriteContract (make sure to adjust this based on your needs)
   const { writeContractAsync: joinFunction } = useWriteContract();
+  console.log(circleId);
 
   // Function to calculate percentage (can be adjusted as needed)
   const calculatePercentage = (x: number, A: number): number => {
