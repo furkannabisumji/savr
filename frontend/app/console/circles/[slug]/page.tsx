@@ -426,17 +426,29 @@ export default function CircleDetail() {
             defaultValue="members"
             className="w-full h-full min-h-[50vh] p-0 max-h-[100vh]"
           >
-            <TabsList className="w-full justify-start rounded-none h-[8%]">
-              <TabsTrigger value="members" className="h-full flex gap-2 p-1">
+            <TabsList className="w-full justify-start lg:gap-3 rounded-none h-[8%]">
+              <TabsTrigger
+                value="members"
+                className="h-full flex gap-2 lg:gap-3 lg:p-2 p-1"
+              >
                 <LuUsers size={14} /> Members
               </TabsTrigger>
-              <TabsTrigger value="chat" className="h-full flex gap-2 p-1">
+              <TabsTrigger
+                value="chat"
+                className="h-full flex lg:gap-3 lg:p-2 gap-2 p-1"
+              >
                 <IoChatboxEllipsesOutline size={14} /> Chat
               </TabsTrigger>
-              <TabsTrigger value="terms" className="h-full flex gap-2 p-1">
+              <TabsTrigger
+                value="terms"
+                className="h-full flex lg:gap-3 lg:p-2 gap-2 p-1"
+              >
                 <IoDocumentTextOutline size={14} /> Terms
               </TabsTrigger>
-              <TabsTrigger value="invite" className="h-full flex gap-2 p-1">
+              <TabsTrigger
+                value="invite"
+                className="h-full flex lg:gap-3 lg:p-2 gap-2 p-1"
+              >
                 <FaRegAddressCard size={14} /> Invites
               </TabsTrigger>
             </TabsList>
