@@ -111,7 +111,7 @@ export const columns: ColumnDef<Circle>[] = [
       return (
         <div className="text-center font-medium flex justify-center">
           <TableBtns
-            circleId={row.getValue("id")}
+            circleId={row.original.id}
             name={row.getValue("name")}
             prestake={row.getValue("preStakeAmount")}
             amount={row.getValue("contributionAmount")}
