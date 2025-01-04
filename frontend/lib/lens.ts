@@ -47,5 +47,5 @@ export const login = async () => {
   // SessionClient: { ... }
   sessionClient = authenticated.value;
 
-  console.log(sessionClient);
+  // console.log(sessionClient);
 };
