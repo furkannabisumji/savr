@@ -4,6 +4,9 @@ import "./globals.css";
 import { Web3Provider } from "./Web3Provider";
 import { Toaster } from "@/components/ui/toaster";
 import { CustomLensProvider } from "./CustomLensProvider";
+import { ApolloProvider } from "@apollo/client";
+import client from "./apolloclient";
+import CustomApolloProvider from "./apolloProvider";
 
 // Configure Roboto font
 const roboto = Roboto({
@@ -35,7 +38,9 @@ export default function RootLayout({
       <body
         className={`${roboto.variable} ${openSans.variable} antialiased`} // Apply both fonts globally
       >
-        <CustomLensProvider>{children}</CustomLensProvider>
+        <CustomLensProvider>
+          <CustomApolloProvider>{children}</CustomApolloProvider>
+        </CustomLensProvider>
         <Toaster />
       </body>
     </html>
