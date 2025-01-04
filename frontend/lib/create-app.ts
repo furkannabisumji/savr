@@ -25,6 +25,7 @@ export async function createSavrApp(sessionClient: any) {
   const result = await createApp(sessionClient, {
     metadataUri: uri, // the URI from the previous step
   })
+    //@ts-ignore
     .andThen(handleWith(walletClient))
     .andThen(sessionClient.waitForTransaction)
     .andThen((txHash) => fetchApp(sessionClient, { txHash }));
