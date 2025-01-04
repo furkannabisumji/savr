@@ -4327,6 +4327,24 @@ elliptic@^6.5.7:
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
 
+embla-carousel-react@^8.5.1:
+  version "8.5.1"
+  resolved "https://registry.yarnpkg.com/embla-carousel-react/-/embla-carousel-react-8.5.1.tgz#e06ff28cb53698d453ffad89423c23d725e9b010"
+  integrity sha512-z9Y0K84BJvhChXgqn2CFYbfEi6AwEr+FFVVKm/MqbTQ2zIzO1VQri6w67LcfpVF0AjbhwVMywDZqY4alYkjW5w==
+  dependencies:
+    embla-carousel "8.5.1"
+    embla-carousel-reactive-utils "8.5.1"
+
+embla-carousel-reactive-utils@8.5.1:
+  version "8.5.1"
+  resolved "https://registry.yarnpkg.com/embla-carousel-reactive-utils/-/embla-carousel-reactive-utils-8.5.1.tgz#3059ab2f72f04988a96694f700a772a72bb75ffb"
+  integrity sha512-n7VSoGIiiDIc4MfXF3ZRTO59KDp820QDuyBDGlt5/65+lumPHxX2JLz0EZ23hZ4eg4vZGUXwMkYv02fw2JVo/A==
+
+embla-carousel@8.5.1:
+  version "8.5.1"
+  resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-8.5.1.tgz#8d83217e831666f6df573b0d3727ff0ae9208002"
+  integrity sha512-JUb5+FOHobSiWQ2EJNaueCNT/cQU9L6XWBbWmorWPQT9bkbk+fhsuLr8wWrzXKagO3oWszBO7MSx+GfaRk4E6A==
+
 emoji-regex@^8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-8.0.0.tgz#e818fd69ce5ccfcb404594f842963bf53164cc37"
@@ -4767,11 +4785,6 @@ fs-extra@^11.1.1:
     jsonfile "^6.0.1"
     universalify "^2.0.0"
 
-fs@^0.0.1-security:
-  version "0.0.1-security"
-  resolved "https://registry.yarnpkg.com/fs/-/fs-0.0.1-security.tgz#8a7bd37186b6dddf3813f23858b57ecaaf5e41d4"
-  integrity sha512-3XY9e1pP0CVEUCdj5BmfIZxRBTSDycnbqhIOGec9QYtmVH2fbLpj86CFWkrNOkt/Fvty4KZG5lTglL9j/gJ87w==
-
 fsevents@~2.3.2:
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.3.3.tgz#cac6407785d03675a2a5e1a5305c697b347d90d6"
@@ -5065,11 +5078,6 @@ http2-wrapper@^1.0.0-beta.5.2:
     quick-lru "^5.1.1"
     resolve-alpn "^1.0.0"
 
-https@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/https/-/https-1.0.0.tgz#3c37c7ae1a8eeb966904a2ad1e975a194b7ed3a4"
-  integrity sha512-4EC57ddXrkaF0x83Oj8sM6SLQHAWXw90Skqu2M4AEWENZ3F02dFJE/GARA8igO79tcgYqGrD7ae4f5L3um2lgg==
-
 humanize-ms@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/humanize-ms/-/humanize-ms-1.2.1.tgz#c46e3159a293f6b896da29316d8b6fe8bb79bbed"
@@ -5119,11 +5127,6 @@ inquirer@^8.2.0:
     strip-ansi "^6.0.0"
     through "^2.3.6"
     wrap-ansi "^6.0.1"
-
-install@^0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/install/-/install-0.13.0.tgz#6af6e9da9dd0987de2ab420f78e60d9c17260776"
-  integrity sha512-zDml/jzr2PKU9I8J/xyZBQn8rPCAY//UOYNmR01XwNwyfhEWObo2SWfSl1+0tm1u6PhxLwDnfsT/6jB7OUxqFA==
 
 internal-slot@^1.1.0:
   version "1.1.0"

@@ -7,8 +7,6 @@ import { evmAddress } from "@lens-protocol/client";
 import { privateKeyToAccount } from "viem/accounts";
 
 export const getUsers = async (address: string) => {
-  return;
-  console.log(address);
   const result = await fetchAccountsAvailable(client, {
     managedBy: evmAddress(address),
     includeOwned: true,

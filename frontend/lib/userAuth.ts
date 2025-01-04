@@ -1,10 +1,10 @@
 import { client } from "./client";
 import app from "../constants/app.json";
-import { privateKeyToAccount } from "viem/accounts";
-import { createSavrApp } from "./create-app";
-const signer = privateKeyToAccount(
-  process.env.NEXT_PUBLIC_APP_PRIVATE_KEY as `0x${string}`,
-);
+import { walletClient } from "./viem";
+// const signer = privateKeyToAccount(
+//   process.env.NEXT_PUBLIC_APP_PRIVATE_KEY as `0x${string}`,
+// );
+import { enableSignless } from "@lens-protocol/client/actions";
 
 export async function authUser(address: any) {
   //First, authenticate as an Onboarding User.
@@ -14,14 +14,22 @@ export async function authUser(address: any) {
       wallet: address,
     },
 
-    signMessage: (message) => signer.signMessage({ message }),
+    signMessage: (message) => {
+      if (!walletClient) {
+        throw new Error("Wallet client is not initialized");
+      }
+
+      // Provide the correct structure that signMessage expects
+      return walletClient.signMessage({
+        account: address as `0x${string}`, // Pass the account (address) here
+        message, // Pass the message to be signed
+      });
+    },
   });
 
   if (authenticated.isErr()) {
     return console.error(authenticated.error);
   }
 
-  // SessionClient: { ... }
-  const sessionClient = authenticated.value;
-  console.log(sessionClient);
+  console.log(authenticated.value);
 }

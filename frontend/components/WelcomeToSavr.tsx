@@ -7,7 +7,6 @@ import {
 import { useAccount } from "wagmi";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { getUsers } from "@/lib/lens";
 import { authUser } from "@/lib/userAuth";
 import { v4 as uuidv4 } from "uuid";
 import { useMutation, useQuery } from "@apollo/client";
@@ -29,10 +28,11 @@ import {
 } from "./WalletButtons";
 import { walletClient } from "@/lib/viem";
 import { useTransactionStatusQuery } from "@/hooks/useTransactionStatusQuery"; // Import the hook
+import { AccountsList } from "./AccountsList";
+import { ConnectKitButton } from "connectkit";
 
 export function WelcomeToSavr() {
   const { isConnected, address, isConnecting } = useAccount();
-  const { data: session } = useLensSession();
   const [image, setImage] = useState<string | null>("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [localName, setLocalName] = useState<string>("");
@@ -68,14 +68,18 @@ export function WelcomeToSavr() {
   });
 
   //query available accounts
-  const { loading, error, data } = useQuery(ACCOUNTS_AVAILABLE_QUERY, {
+  const {
+    data: accountsAvailable,
+    loading: loadingAvailableAcc,
+    refetch: refetchAccts,
+  } = useQuery(ACCOUNTS_AVAILABLE_QUERY, {
     variables: { managedBy: address, includeOwned: true },
   });
 
-  console.log(data);
-
   // console.log(accountData, txStatusData);
   const handleChallengeMutation = async () => {
+    //await authUser(address);
+
     if (!address || !image || !localName) {
       console.error("Fill all data");
       return;
@@ -83,8 +87,6 @@ export function WelcomeToSavr() {
 
     setIsGenerating(true);
     try {
-      await authUser(address);
-
       const { data: challengeData } = await challenge({
         variables: {
           request: {
@@ -100,7 +102,7 @@ export function WelcomeToSavr() {
         throw new Error("Challenge data is missing");
       }
 
-      const signature = await walletClient.signMessage({
+      const signature = await walletClient?.signMessage({
         account: address,
         message: challengeData.challenge.text,
       });
@@ -176,8 +178,8 @@ export function WelcomeToSavr() {
       throw new Error("Challenge data is missing");
     }
 
-    const signature = await walletClient.signMessage({
-      account: address,
+    const signature = await walletClient?.signMessage({
+      account: address as `0x${string}`,
       message: challengeData.challenge.text,
     });
 
@@ -216,6 +218,7 @@ export function WelcomeToSavr() {
     } catch (err) {
       console.error("Error switching account:", err);
     } finally {
+      refetchAccts();
       setIsGenerating(false);
     }
   };
@@ -254,143 +257,125 @@ export function WelcomeToSavr() {
     }
   }, [accountData, txStatusData, stopPolling]);
 
-  useEffect(() => {
-    if (address) {
-      getUsers(address);
-    }
-  }, [address]);
-
   if (!isConnected && !isConnecting) {
     return (
       <>
         <p className="mb-4 text-gray-500">
           Connect your wallet to get started.
         </p>
-        <ConnectWalletButton />
+        {/* <ConnectWalletButton /> */}
+        <ConnectKitButton />
       </>
     );
   }
 
-  if (!session?.authenticated && address) {
-    return (
-      <>
-        <p className="text-base text-gray-500">
-          No Lens Profiles found in this wallet.
-        </p>
-        <ImageUploader image={image} setImage={setImage} />
-        <div className="w-full max-w-sm flex flex-col gap-2 py-5">
-          <div className="h-12 flex items-center w-full">
-            <p className="w-[15%]">lens/&nbsp;</p>
-            <Input
-              value={localName}
-              onChange={(e) => setLocalName(e.target.value)}
-              disabled={isGenerating}
-              placeholder="Choose username"
-              className="bg-background h-full w-[85%] outline-none"
-            />
-          </div>
-          <Button
-            onClick={handleChallengeMutation}
-            disabled={isGenerating}
-            className="w-full h-12 font-semibold"
-          >
-            {isGenerating ? "Generating..." : "Get one"}
-          </Button>
-        </div>
-        <DisconnectWalletButton />
-      </>
-    );
-  }
-
-  if (session && session.type === SessionType.WithProfile) {
-    return (
-      <>
-        <p className="mb-4 text-gray-500">
-          You are logged in as{" "}
-          <span className="text-gray-800 font-semibold">
-            {session.profile.handle?.fullHandle ?? session.profile.id}
-          </span>
-        </p>
-        <LogoutButton />
-      </>
-    );
-  }
-
-  // Display the transaction status section if txHash exists
   return (
     <>
-      {txHash && (
-        <div className="w-full max-w-sm flex flex-col gap-2 py-5">
-          <p className="mb-2 text-gray-500">Transaction Status</p>
-          {txStatusLoading && <p>Loading transaction status...</p>}
-          {txStatusError && <p>Error: {txStatusError.message}</p>}
-
-          {txStatusData && (
-            <div>
-              {txStatusData.transactionStatus.__typename ===
-                "NotIndexedYetStatus" && (
-                <p>
-                  Transaction not indexed yet:{" "}
-                  {txStatusData.transactionStatus.reason}
-                </p>
-              )}
-              {txStatusData.transactionStatus.__typename ===
-                "PendingTransactionStatus" && (
-                <p>
-                  Transaction pending, block timestamp:{" "}
-                  {txStatusData.transactionStatus.blockTimestamp}
-                </p>
-              )}
-              {txStatusData.transactionStatus.__typename ===
-                "FinishedTransactionStatus" && (
-                <p>
-                  Transaction finished, block timestamp:{" "}
-                  {txStatusData.transactionStatus.blockTimestamp}
-                </p>
-              )}
-              {txStatusData.transactionStatus.__typename ===
-                "FailedTransactionStatus" && (
-                <p>
-                  Transaction failed: {txStatusData.transactionStatus.reason},
-                  block timestamp:{" "}
-                  {txStatusData.transactionStatus.blockTimestamp}
-                </p>
-              )}
-            </div>
-          )}
+      <ImageUploader image={image} setImage={setImage} />
+      <div className="w-full max-w-sm flex flex-col gap-2 py-5">
+        <div className="h-12 flex items-center w-full">
+          {/* <p className="w-[15%]">lens/&nbsp;</p> */}
+          <Input
+            value={localName}
+            onChange={(e) => setLocalName(e.target.value)}
+            disabled={isGenerating}
+            placeholder="Choose username"
+            className="bg-background h-full w-full outline-none"
+          />
         </div>
-      )}
+        <Button
+          onClick={handleChallengeMutation}
+          disabled={isGenerating}
+          className="w-full h-12 font-semibold"
+        >
+          {isGenerating ? "Generating..." : "Get one"}
+        </Button>
 
-      {/* Display account details from txHash query */}
-      {accountData && (
-        <div className="w-full max-w-sm flex flex-col gap-2 py-5">
-          <p className="mb-2 text-gray-500">Account Information</p>
-          {accountLoading && <p>Loading account information...</p>}
-          {accountError && <p>Error: {accountError.message}</p>}
-
-          {accountData.account && (
-            <div>
-              <p>
-                <strong>Address:</strong> {accountData.account.address}
-              </p>
-              <p>
-                <strong>Username:</strong> {accountData.account.username}
-              </p>
-              {accountData.account.metadata && (
-                <div>
-                  <p>
-                    <strong>Name:</strong> {accountData.account.metadata.name}
-                  </p>
-                  <p>
-                    <strong>Picture:</strong>{" "}
-                    {accountData.account.metadata.picture}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+        {accountsAvailable && !loadingAvailableAcc && (
+          <AccountsList
+            accountsAvailable={accountsAvailable.accountsAvailable}
+          />
+        )}
+      </div>
+      <DisconnectWalletButton />
     </>
   );
+
+  // Display the transaction status section if txHash exists
+  // return (
+  //   <>
+  //     {txHash && (
+  //       <div className="w-full max-w-sm flex flex-col gap-2 py-5">
+  //         <p className="mb-2 text-gray-500">Transaction Status</p>
+  //         {txStatusLoading && <p>Loading transaction status...</p>}
+  //         {txStatusError && <p>Error: {txStatusError.message}</p>}
+
+  //         {txStatusData && (
+  //           <div>
+  //             {txStatusData.transactionStatus.__typename ===
+  //               "NotIndexedYetStatus" && (
+  //               <p>
+  //                 Transaction not indexed yet:{" "}
+  //                 {txStatusData.transactionStatus.reason}
+  //               </p>
+  //             )}
+  //             {txStatusData.transactionStatus.__typename ===
+  //               "PendingTransactionStatus" && (
+  //               <p>
+  //                 Transaction pending, block timestamp:{" "}
+  //                 {txStatusData.transactionStatus.blockTimestamp}
+  //               </p>
+  //             )}
+  //             {txStatusData.transactionStatus.__typename ===
+  //               "FinishedTransactionStatus" && (
+  //               <p>
+  //                 Transaction finished, block timestamp:{" "}
+  //                 {txStatusData.transactionStatus.blockTimestamp}
+  //               </p>
+  //             )}
+  //             {txStatusData.transactionStatus.__typename ===
+  //               "FailedTransactionStatus" && (
+  //               <p>
+  //                 Transaction failed: {txStatusData.transactionStatus.reason},
+  //                 block timestamp:{" "}
+  //                 {txStatusData.transactionStatus.blockTimestamp}
+  //               </p>
+  //             )}
+  //           </div>
+  //         )}
+  //       </div>
+  //     )}
+
+  //     {/* Display account details from txHash query */}
+  //     {accountData && (
+  //       <div className="w-full max-w-sm flex flex-col gap-2 py-5">
+  //         <p className="mb-2 text-gray-500">Account Information</p>
+  //         {accountLoading && <p>Loading account information...</p>}
+  //         {accountError && <p>Error: {accountError.message}</p>}
+
+  //         {accountData.account && (
+  //           <div>
+  //             <p>
+  //               <strong>Address:</strong> {accountData.account.address}
+  //             </p>
+  //             <p>
+  //               <strong>Username:</strong> {accountData.account.username}
+  //             </p>
+  //             {accountData.account.metadata && (
+  //               <div>
+  //                 <p>
+  //                   <strong>Name:</strong> {accountData.account.metadata.name}
+  //                 </p>
+  //                 <p>
+  //                   <strong>Picture:</strong>{" "}
+  //                   {accountData.account.metadata.picture}
+  //                 </p>
+  //               </div>
+  //             )}
+  //           </div>
+  //         )}
+  //       </div>
+  //     )}
+  //   </>
+  // );
 }

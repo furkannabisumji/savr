@@ -7,7 +7,7 @@ export function ConnectWalletButton() {
     <ConnectKitButton.Custom>
       {({ isConnected, show, truncatedAddress }) => {
         return (
-          <Button onClick={show}>
+          <Button onClick={show} variant="secondary">
             {isConnected ? truncatedAddress : "Connect Wallet"}
           </Button>
         );

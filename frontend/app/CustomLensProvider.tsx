@@ -2,7 +2,7 @@
 
 import React from "react";
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { polygon, polygonAmoy } from "wagmi/chains";
+import { polygon } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import {
