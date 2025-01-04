@@ -17,6 +17,7 @@ import {
   AUTHENTICATE_MUTATION,
   ACCOUNT_QUERY,
   SWITCH_ACCOUNT_MUTATION,
+  ACCOUNTS_AVAILABLE_QUERY,
 } from "@/lib/queries";
 import { uploadAsJson } from "@/lib/storage-client";
 import ImageUploader from "./ImageUploader";
@@ -39,7 +40,6 @@ export function WelcomeToSavr() {
   const [createAccountWithUsername] = useMutation(CREATE_ACCOUNT_MUTATION);
   const [authenticate] = useMutation(AUTHENTICATE_MUTATION);
   const [switchAccount] = useMutation(SWITCH_ACCOUNT_MUTATION);
-
   const [txHash, setTxHash] = useState<string>("");
 
   // Query transaction status using the txHash
@@ -66,6 +66,13 @@ export function WelcomeToSavr() {
     pollInterval: 5000, // Poll every 5 seconds
     notifyOnNetworkStatusChange: true, // Notify when polling
   });
+
+  //query available accounts
+  const { loading, error, data } = useQuery(ACCOUNTS_AVAILABLE_QUERY, {
+    variables: { managedBy: address, includeOwned: true },
+  });
+
+  console.log(data);
 
   // console.log(accountData, txStatusData);
   const handleChallengeMutation = async () => {

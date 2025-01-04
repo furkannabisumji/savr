@@ -105,3 +105,47 @@ export const SWITCH_ACCOUNT_MUTATION = gql`
     }
   }
 `;
+export const ACCOUNTS_AVAILABLE_QUERY = gql`
+  query AccountsAvailable($managedBy: String!, $includeOwned: Boolean!) {
+    accountsAvailable(
+      request: { managedBy: $managedBy, includeOwned: $includeOwned }
+    ) {
+      items {
+        ... on AccountManaged {
+          account {
+            address
+            owner
+            createdAt
+            score
+            username {
+              localName
+            }
+            metadata {
+              picture
+            }
+          }
+          addedAt
+        }
+        ... on AccountOwned {
+          account {
+            address
+            owner
+            createdAt
+            score
+            username {
+              localName
+            }
+            metadata {
+              picture
+            }
+          }
+          addedAt
+        }
+      }
+      pageInfo {
+        next
+        prev
+      }
+    }
+  }
+`;
