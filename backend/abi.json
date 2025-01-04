@@ -211,6 +211,16 @@
         "internalType": "uint256",
         "name": "groupId",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "member",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       }
     ],
     "name": "contribute",
@@ -238,11 +248,6 @@
       {
         "internalType": "uint256",
         "name": "totalCycles",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "preStakePercentage",
         "type": "uint256"
       }
     ],
@@ -313,12 +318,12 @@
           },
           {
             "internalType": "uint256",
-            "name": "currentCycle",
+            "name": "totalContributedAmount",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "preStakeAmount",
+            "name": "currentCycle",
             "type": "uint256"
           },
           {
@@ -504,16 +509,16 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "stablecoin",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "contract IERC20",
-        "name": "",
+        "internalType": "address payable",
+        "name": "_sender",
         "type": "address"
       }
     ],
-    "stateMutability": "view",
+    "name": "setSender",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

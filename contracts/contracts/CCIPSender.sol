@@ -20,12 +20,7 @@ contract Sender is OwnerIsCreator {
     address receiver;
     // Event emitted when a message is sent to another chain.
     event MessageSent(
-        bytes32 indexed messageId, // The unique ID of the CCIP message.
-        uint64 indexed destinationChainSelector, // The chain selector of the destination chain.
-        address receiver, // The address of the receiver on the destination chain.
-        bytes text, // The text being sent.
-        address feeToken, // the token address used to pay CCIP fees.
-        uint256 fees // The fees paid for sending the CCIP message.
+        bytes32 indexed messageId // The unique ID of the CCIP message.
     );
 
     IRouterClient private s_router;
@@ -35,7 +30,12 @@ contract Sender is OwnerIsCreator {
     /// @notice Constructor initializes the contract with the router address.
     /// @param _router The address of the router contract.
     /// @param _link The address of the link contract.
-    constructor(address _router, address _link, address _sender, address _receiver) {
+    constructor(
+        address _router,
+        address _link,
+        address _sender,
+        address _receiver
+    ) {
         s_router = IRouterClient(_router);
         s_linkToken = LinkTokenInterface(_link);
         sender = _sender;
@@ -49,9 +49,9 @@ contract Sender is OwnerIsCreator {
         bytes memory text,
         uint64 destinationChainSelector
     ) external returns (bytes32 messageId) {
-        require(sender==msg.sender, "Unauthorised");
+        require(sender == msg.sender, "Unauthorised");
         // Create an EVM2AnyMessage struct in memory with necessary information for sending a cross-chain message
-        Client.EVM2AnyMessage memory evm2AnyMessage = Client.EVM2AnyMessage({
+        Client.EVM2AnyMessage memory message = Client.EVM2AnyMessage({
             receiver: abi.encode(receiver), // ABI-encoded receiver address
             data: text, // ABI-encoded string
             tokenAmounts: new Client.EVMTokenAmount[](0), // Empty array indicating no tokens are being sent
@@ -69,32 +69,24 @@ contract Sender is OwnerIsCreator {
             feeToken: address(0)
         });
 
-        // Get the fee required to send the message
-        uint256 fees = s_router.getFee(
+        uint256 fee = s_router.getFee(destinationChainSelector, message);
+
+        bytes32 messaged = s_router.ccipSend{value: fee}(
             destinationChainSelector,
-            evm2AnyMessage
+            message
         );
 
-        if (fees > s_linkToken.balanceOf(address(this)))
-            revert NotEnoughBalance(s_linkToken.balanceOf(address(this)), fees);
-
-        // approve the Router to transfer LINK tokens on contract's behalf. It will spend the fees in LINK
-        s_linkToken.approve(address(s_router), fees);
-
-        // Send the message through the router and store the returned message ID
-        messageId = s_router.ccipSend(destinationChainSelector, evm2AnyMessage);
-
-        // Emit an event with message details
-        emit MessageSent(
-            messageId,
-            destinationChainSelector,
-            receiver,
-            text,
-            address(s_linkToken),
-            fees
-        );
+        emit MessageSent(messaged);
 
         // Return the message ID
-        return messageId;
+        return messaged;
     }
+
+    function withdraw() public onlyOwner {
+    require(address(this).balance > 0, "No funds available");
+    (bool success, ) = payable(owner()).call{value: address(this).balance}("");
+    require(success, "Transfer failed");
+}
+
+    receive() external payable {}
 }

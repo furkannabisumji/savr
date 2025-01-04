@@ -82,7 +82,7 @@ contract Savr is Ownable {
 
     constructor() {}
 
-    function setSender(address _sender) public onlyOwner {
+    function setSender(address payable _sender) public onlyOwner {
         sender = Sender(_sender);
     }
 
