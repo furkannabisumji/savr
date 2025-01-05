@@ -50,7 +50,7 @@ const appConfigs = {
 // select the config based on the environment
 const appConfig = appConfigs["development"]; // or appConfigs["production"]
 
-const wagmiConfig = createConfig(
+export const wagmiConfig = createConfig(
   getDefaultConfig({
     appName: "Savr",
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,

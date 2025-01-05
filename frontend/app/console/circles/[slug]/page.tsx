@@ -25,7 +25,7 @@ import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import config from "@/constants/config.json";
 import { useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { formatEther } from "viem";
+import { formatEther, parseEther, parseUnits } from "viem";
 import WalletAddress from "../../components/WalletAddress";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
@@ -33,6 +33,11 @@ import { InviteDataForm } from "./components/InviteForm";
 import TimeAgo from "../../components/TimeToGo";
 import JoinCircleButton from "../../components/JoinCircleButton";
 import CountdownTimer from "../../components/CountDowntimer";
+import { sepolia } from "viem/chains";
+import { walletClient } from "@/lib/viem";
+import { wagmiConfig } from "@/app/CustomLensProvider";
+import { switchChain } from "@wagmi/core";
+import { lens } from "@/app/customChains";
 
 export default function CircleDetail() {
   const { slug } = useParams();
@@ -44,7 +49,7 @@ export default function CircleDetail() {
   const { address } = useAccount();
   const [activeCycle, setActiveCycles] = useState<Cycle | null>(null);
   const [completedCycles, setCompletedCycles] = useState<Cycle[]>([]);
-
+  const [activeCircle, setActiveCircle] = useState<Circle | null>(null);
   const { data: selectedCircle }: { data: Circle[] | undefined } =
     useReadContract({
       abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
@@ -52,6 +57,8 @@ export default function CircleDetail() {
       functionName: "getGroups",
       args: [slug, admin],
     });
+
+  console.log(selectedCircle);
 
   const { data: invites }: { data: string[] | undefined } = useReadContract({
     abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
@@ -64,25 +71,45 @@ export default function CircleDetail() {
   };
 
   const contribute = async () => {
+    // Switch to the Sepolia chain
+    await switchChain(wagmiConfig, { chainId: sepolia.id });
+
+    const contributionAmount = activeCircle?.contributionAmount || 0;
+    const activeCircleId = activeCircle?.id || 0;
+
+    // Log the contribution amount in human-readable form
+    console.log("Contribution Amount (in wei):", contributionAmount);
+
+    // Convert the contribution amount to the token's smallest unit (6 decimals) since aave usdt has 6 as decimal
+    const contributionAmountInSmallestUnit = parseUnits(
+      formatEther(contributionAmount as bigint),
+      6,
+    ); // 6 decimals for the token
+    console.log(
+      "Contribution Amount (in smallest unit):",
+      contributionAmountInSmallestUnit.toString(),
+    );
+
     setIsContributing(true);
+
     try {
-      // Approve token for factory contract
+      // Approve the token for the pool contract
       await contributeFunction({
-        abi: config.lens.usdt.abi,
-        address: config.lens.usdt.address as `0x${string}`,
+        abi: config.sepolia.usdt.abi,
+        address: config.sepolia.usdt.address as `0x${string}`,
         functionName: "approve",
         args: [
-          config.lens.savr.address,
-          selectedCircle ? selectedCircle[0].contributionAmount : 0,
-        ],
+          config.sepolia.savrpool.address,
+          contributionAmountInSmallestUnit,
+        ], // Send the converted value
       });
 
       // Execute the contribution transaction
       await contributeFunction({
-        abi: config.lens.savr.abi,
-        address: config.lens.savr.address as `0x${string}`,
-        functionName: "contribute",
-        args: [selectedCircle ? selectedCircle[0].id : 0],
+        abi: config.sepolia.savrpool.abi,
+        address: config.sepolia.savrpool.address as `0x${string}`,
+        functionName: "supply",
+        args: [activeCircleId, contributionAmountInSmallestUnit], // Send the converted value
       });
 
       // Show success toast
@@ -99,9 +126,51 @@ export default function CircleDetail() {
         description: "Contribution failed.",
       });
     } finally {
+      // Switch back the chain
+      await switchChain(wagmiConfig, { chainId: lens.id });
       setIsContributing(false);
     }
   };
+
+  // const contribute = async () => {
+  //   setIsContributing(true);
+  //   try {
+  //     // Approve token for factory contract
+  //     await contributeFunction({
+  //       abi: config.lens.usdt.abi,
+  //       address: config.lens.usdt.address as `0x${string}`,
+  //       functionName: "approve",
+  //       args: [
+  //         config.lens.savr.address,
+  //         selectedCircle ? selectedCircle[1].contributionAmount : 0,
+  //       ],
+  //     });
+
+  //     // Execute the contribution transaction
+  //     await contributeFunction({
+  //       abi: config.lens.savr.abi,
+  //       address: config.lens.savr.address as `0x${string}`,
+  //       functionName: "contribute",
+  //       args: [selectedCircle ? selectedCircle[1].id : 0],
+  //     });
+
+  //     // Show success toast
+  //     toast({
+  //       description: "Contribution completed successfully!",
+  //     });
+  //     setIsContributing(false);
+  //   } catch (error) {
+  //     // Show error toast if transaction fails
+  //     console.log(error);
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Uh oh! Something went wrong.",
+  //       description: "Contribution failed.",
+  //     });
+  //   } finally {
+  //     setIsContributing(false);
+  //   }
+  // };
 
   // Function to check active cycles
   const getActiveCycle = (selectedCircle: Circle): Cycle | null => {
@@ -130,11 +199,12 @@ export default function CircleDetail() {
   useEffect(() => {
     if (!selectedCircle) return;
     // Check active cycles when component is mounted or selectedCircle data changes
-    const activeCycle = getActiveCycle(selectedCircle[0]);
+    const activeCycle = getActiveCycle(selectedCircle[1]);
     setActiveCycles(activeCycle);
+    setActiveCircle(selectedCircle[1]);
 
     // Get the completed cycles from the selectedCircle
-    const completedCyclesList = getCompletedCycles(selectedCircle[0]);
+    const completedCyclesList = getCompletedCycles(selectedCircle[1]);
 
     // Set the state with completed cycles
     setCompletedCycles(completedCyclesList);
@@ -145,8 +215,8 @@ export default function CircleDetail() {
       <section className="h-[10%] flex gap-2 items-center">
         <div className="h-full w-[100px] bg-gray-400 relative">
           <Image
-            src={`${process.env.NEXT_PUBLIC_LIGHTHOUSE_GATE_WAY}/${selectedCircle && selectedCircle[0].image}`} // Dynamic image source
-            alt={(selectedCircle && selectedCircle[0].name) || "A circle image"} // Better alt text using dynamic name if available
+            src={`${process.env.NEXT_PUBLIC_LIGHTHOUSE_GATE_WAY}/${selectedCircle && selectedCircle[1].image}`} // Dynamic image source
+            alt={(selectedCircle && selectedCircle[1].name) || "A circle image"} // Better alt text using dynamic name if available
             layout="fill" // Makes the image fill the container
             objectFit="cover" // Ensures the image covers the container without distortion
             priority={true} // Use priority for images above the fold
@@ -156,7 +226,7 @@ export default function CircleDetail() {
         <div className="h-full flex flex-col justify-center">
           <div>
             <h2 className=" font-bold text-3xl">
-              {selectedCircle && selectedCircle[0].name}
+              {selectedCircle && selectedCircle[1].name}
             </h2>
             <p className="flex  text-sm gap-3">
               Created:{" "}
@@ -164,7 +234,7 @@ export default function CircleDetail() {
                 <TimeAgo
                   timestamp={
                     selectedCircle
-                      ? Number(selectedCircle[0].createdAt) * 1000
+                      ? Number(selectedCircle[1].createdAt) * 1000
                       : 0
                   }
                 />
@@ -197,7 +267,7 @@ export default function CircleDetail() {
             <div className="text-2xl font-bold">
               $
               {selectedCircle &&
-                formatEther(selectedCircle[0].contributionAmount)}
+                formatEther(selectedCircle[1].contributionAmount)}
             </div>
             <p className="text-xs text-muted-foreground">
               +20.1% from last month
@@ -226,7 +296,7 @@ export default function CircleDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              +{selectedCircle && selectedCircle[0].members.length}
+              +{selectedCircle && selectedCircle[1].members.length}
             </div>
             <p className="text-xs text-muted-foreground">
               +180.1% from last month
@@ -255,7 +325,7 @@ export default function CircleDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {selectedCircle && selectedCircle[0].cycles.length}
+              {selectedCircle && selectedCircle[1].cycles.length}
             </div>
             <p className="text-xs text-muted-foreground">
               Avg of 90% participation
@@ -304,12 +374,12 @@ export default function CircleDetail() {
                         : 0}{" "}
                       USDT){"  "}
                       {selectedCircle && (
-                        <CountdownTimer selectedCircle={selectedCircle[0]} />
+                        <CountdownTimer selectedCircle={selectedCircle[1]} />
                       )}
                     </small>
                   </div>
 
-                  <div className="flex justify-between items-center h-[16.66%]">
+                  {/* <div className="flex justify-between items-center h-[16.66%]">
                     <h3 className="font-semibold text-sm flex items-center  gap-2 ">
                       <PiMoney size={15} /> <span>Stake :</span>
                     </h3>
@@ -318,17 +388,17 @@ export default function CircleDetail() {
                         ? formatEther(
                             // @ts-ignore
                             calculatePercentage(
-                              Number(selectedCircle[0].preStakeAmount),
+                              Number(selectedCircle[1].preStakeAmount),
                               Number(
                                 formatEther(
-                                  selectedCircle[0].contributionAmount,
+                                  selectedCircle[1].contributionAmount,
                                 ),
                               ),
                             ),
                           )
                         : ""}
                     </small>
-                  </div>
+                  </div> */}
 
                   <div className="flex justify-between items-center h-[16.66%]">
                     <h3 className="font-semibold text-sm flex items-center  gap-2 ">
@@ -336,7 +406,7 @@ export default function CircleDetail() {
                     </h3>
                     <small className="text-gray-500">
                       <WalletAddress
-                        address={selectedCircle ? selectedCircle[0].admin : ""}
+                        address={selectedCircle ? selectedCircle[1].admin : ""}
                       />
                     </small>
                   </div>
@@ -345,8 +415,8 @@ export default function CircleDetail() {
                       <PiUsersThreeBold size={15} /> <span>Members:</span>{" "}
                     </h3>
                     <small className="text-gray-500">
-                      {selectedCircle && selectedCircle[0].cycles.length > 0
-                        ? selectedCircle[0].cycles[0].members.length
+                      {selectedCircle && selectedCircle[1].cycles.length > 0
+                        ? selectedCircle[1].cycles[1].members.length
                         : 0}
                     </small>
                   </div>
@@ -357,37 +427,52 @@ export default function CircleDetail() {
                     </h3>
                     <small className="text-gray-500">
                       {selectedCircle &&
-                        (selectedCircle[0].cycles.length !==
-                        selectedCircle[0].members.length
-                          ? "Pending"
-                          : "Active")}
+                        (selectedCircle[1].cycles.length >
+                        selectedCircle[1].members.length + 1 ? (
+                          "Pending"
+                        ) : (
+                          <span className="text-green-500">Active</span>
+                        ))}
                     </small>
                   </div>
 
                   <div className="flex justify-between items-center h-[16.66%] gap-3 border-t pt-5">
-                    <InviteDataForm section="btn" />
+                    {selectedCircle &&
+                      (selectedCircle[1].cycles.length >
+                      selectedCircle[1].members.length + 1 ? (
+                        <InviteDataForm section="btn" />
+                      ) : (
+                        <Button
+                          variant="secondary"
+                          disabled
+                          className="w-[50%] h-10"
+                        >
+                          Invitation end
+                        </Button>
+                      ))}
+
                     {selectedCircle &&
                       (() => {
                         const isInvited = invites?.includes(address as string);
-                        const isMember = selectedCircle[0]?.members.includes(
+                        const isMember = selectedCircle[1]?.members.includes(
                           address as string,
                         );
 
                         if (isInvited && !isMember) {
                           return (
                             <JoinCircleButton
-                              circleId={selectedCircle[0].id}
-                              name={selectedCircle[0].name}
-                              prestake={selectedCircle[0].preStakeAmount}
-                              amount={selectedCircle[0].contributionAmount}
+                              circleId={selectedCircle[1].id}
+                              name={selectedCircle[1].name}
+                              prestake={selectedCircle[1].preStakeAmount}
+                              amount={selectedCircle[1].contributionAmount}
                               className="w-ful"
-                              members={selectedCircle[0].members}
-                              admin={selectedCircle[0].admin}
+                              members={selectedCircle[1].members}
+                              admin={selectedCircle[1].admin}
                             />
                           );
                         }
 
-                        if (isMember) {
+                        if (isMember || selectedCircle[1]?.admin == address) {
                           return (
                             <Button
                               className="rounded-none py-2 w-[50%]"
@@ -395,8 +480,8 @@ export default function CircleDetail() {
                               type="button"
                               disabled={
                                 isContributing ||
-                                selectedCircle[0].cycles.length !=
-                                  selectedCircle[0].members.length
+                                selectedCircle[1].cycles.length >
+                                  selectedCircle[1].members.length + 1
                               }
                             >
                               Contribute

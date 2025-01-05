@@ -39,7 +39,7 @@ export function Invites({ groupId }: { groupId: number }) {
             </div>
 
             <div className=" w-[50%] text-right font-medium text-primary">
-              member
+              Invited
             </div>
           </div>
         ))}

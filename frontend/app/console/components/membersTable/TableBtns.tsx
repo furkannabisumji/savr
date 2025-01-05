@@ -55,12 +55,12 @@ const TableBtns = ({
       );
 
       // Write to the contract: This is a sample function call to approve tokens for the contract
-      await joinFunction({
-        abi: config.lens.usdt.abi,
-        address: config.lens.usdt.address as `0x${string}`,
-        functionName: "approve", // Example function from your contract ABI
-        args: [config.lens.savr.address, amt],
-      });
+      // await joinFunction({
+      //   abi: config.lens.usdt.abi,
+      //   address: config.lens.usdt.address as `0x${string}`,
+      //   functionName: "approve", // Example function from your contract ABI
+      //   args: [config.lens.savr.address, amt],
+      // });
 
       // Then call the "joinGroup" function
       await joinFunction({

@@ -20,6 +20,9 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
 import Splash from "@/components/Splash";
+import { switchChain } from "@wagmi/core";
+import { lens } from "../customChains";
+import { walletClient } from "@/lib/viem";
 
 export default function ConsoleLayout({
   children,
@@ -27,13 +30,18 @@ export default function ConsoleLayout({
   children: React.ReactNode;
 }>) {
   const currentPath = usePathname();
-  const { isConnected, isConnecting, isReconnecting } = useAccount();
+  const { isConnected, isConnecting, isReconnecting, address } = useAccount();
   const router = useRouter();
 
   const [delayedCheck, setDelayedCheck] = useState(false);
 
+  async function checkChain() {
+    walletClient && (await walletClient.switchChain({ id: lens.id }));
+  }
+
   useEffect(() => {
     // Set a delay to ensure states are stabilized
+    checkChain();
     const timer = setTimeout(() => setDelayedCheck(true), 100); // Adjust delay as needed
     return () => clearTimeout(timer); // Cleanup timer on unmount
   }, []);
@@ -43,7 +51,14 @@ export default function ConsoleLayout({
     if (delayedCheck && !isConnected && !isConnecting && !isReconnecting) {
       router.push("/"); // Redirect to connection page
     }
-  }, [isConnected, isConnecting, isReconnecting, delayedCheck, router]);
+  }, [
+    isConnected,
+    isConnecting,
+    isReconnecting,
+    delayedCheck,
+    router,
+    address,
+  ]);
 
   if (isConnected) {
     return (
