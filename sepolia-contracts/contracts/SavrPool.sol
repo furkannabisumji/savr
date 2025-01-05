@@ -16,9 +16,11 @@ contract SavrPool is Ownable {
     mapping(uint256 => uint256) groupBalance;
     uint256 totalAUSDTBalance;
 
-     function setSender(address payable _sender) public onlyOwner {
+    function setSenderAndReceiver(address payable _sender, address _receiver) public onlyOwner {
         sender = Sender(_sender);
-     }
+        receiver = _receiver;
+    }
+    
     function supply(uint256 groupId, uint256 amount) public {
         IERC20(token).transferFrom(msg.sender, address(this), amount);
         IERC20(token).approve(address(POOL), amount);

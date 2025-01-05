@@ -514,9 +514,14 @@
         "internalType": "address payable",
         "name": "_sender",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_receiver",
+        "type": "address"
       }
     ],
-    "name": "setSender",
+    "name": "setSenderAndReceiver",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

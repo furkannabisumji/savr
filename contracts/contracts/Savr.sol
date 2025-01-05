@@ -82,10 +82,11 @@ contract Savr is Ownable {
 
     constructor() {}
 
-    function setSender(address payable _sender) public onlyOwner {
+  function setSenderAndReceiver(address payable _sender, address _receiver) public onlyOwner {
         sender = Sender(_sender);
+        receiver = _receiver;
     }
-
+    
     function createGroup(
         string calldata name,
         string calldata image,
