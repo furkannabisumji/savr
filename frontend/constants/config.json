@@ -1,7 +1,7 @@
 {
   "lens": {
     "savr": {
-      "address": "0x3C11845838cB3057Aa80F299B8605147c6486F24",
+      "address": "0x03DB612CE2Fa9A686723e2010cd551222F83B0Af",
       "abi": [
         {
           "inputs": [],
@@ -518,9 +518,14 @@
               "internalType": "address payable",
               "name": "_sender",
               "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_receiver",
+              "type": "address"
             }
           ],
-          "name": "setSender",
+          "name": "setSenderAndReceiver",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
@@ -1412,7 +1417,7 @@
   },
   "sepolia": {
     "savrpool": {
-      "address": "0xa11f810c650A19F2E6a74828dB73EA29B8C6904D",
+      "address": "0x0D168958e7Be8873d4A997a0aB6F0Dac5b6966C8",
       "abi": [
         {
           "anonymous": false,
@@ -1455,9 +1460,14 @@
               "internalType": "address payable",
               "name": "_sender",
               "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_receiver",
+              "type": "address"
             }
           ],
-          "name": "setSender",
+          "name": "setSenderAndReceiver",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
@@ -2323,6 +2333,157 @@
           "type": "function"
         }
       ]
+    },
+    "sender": {
+      "address": "0x7D7c277cdE9abB358EC86159fc8D7d81612a54E0",
+      "abi": [
+        {
+          "inputs": [
+            { "internalType": "address", "name": "_router", "type": "address" },
+            { "internalType": "address", "name": "_link", "type": "address" },
+            { "internalType": "address", "name": "_sender", "type": "address" },
+            {
+              "internalType": "address",
+              "name": "_receiver",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "currentBalance",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "calculatedFees",
+              "type": "uint256"
+            }
+          ],
+          "name": "NotEnoughBalance",
+          "type": "error"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "messageId",
+              "type": "bytes32"
+            }
+          ],
+          "name": "MessageSent",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferRequested",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        },
+        {
+          "inputs": [],
+          "name": "acceptOwnership",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "owner",
+          "outputs": [
+            { "internalType": "address", "name": "", "type": "address" }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            { "internalType": "bytes", "name": "text", "type": "bytes" }
+          ],
+          "name": "sendMessage",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "messageId",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            { "internalType": "address", "name": "to", "type": "address" }
+          ],
+          "name": "transferOwnership",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "withdraw",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        { "stateMutability": "payable", "type": "receive" }
+      ],
+      "eventAbi": {
+        "messageSent": [
+          {
+            "anonymous": false,
+            "inputs": [
+              {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "messageId",
+                "type": "bytes32"
+              }
+            ],
+            "name": "MessageSent",
+            "type": "event"
+          }
+        ]
+      }
     }
   }
 }
