@@ -47,7 +47,7 @@ contract Sender is OwnerIsCreator {
     /// @dev Assumes your contract has sufficient LINK.
     /// @return messageId The ID of the message that was sent.
     function sendMessage(
-        bytes memory text
+       bytes memory text
     ) external returns (bytes32 messageId) {
         require(sender == msg.sender, "Unauthorised");
         // Create an EVM2AnyMessage struct in memory with necessary information for sending a cross-chain message
@@ -61,12 +61,12 @@ contract Sender is OwnerIsCreator {
                 // where you set the extra arguments off-chain. This allows adaptation depending on the lanes, messages,
                 // and ensures compatibility with future CCIP upgrades. Read more about it here: https://docs.chain.link/ccip/best-practices#using-extraargs
                 Client.EVMExtraArgsV2({
-                    gasLimit: 200_000, // Gas limit for the callback on the destination chain
+                    gasLimit: 400_000, // Gas limit for the callback on the destination chain
                     allowOutOfOrderExecution: true // Allows the message to be executed out of order relative to other messages from the same sender
                 })
             ),
             // Set the feeToken  address, indicating LINK will be used for fees
-            feeToken: address(0)
+            feeToken: address(0x000000000000000000000000000000000000800A)
         });
 
         uint256 fee = s_router.getFee(destinationChainSelector, message);
