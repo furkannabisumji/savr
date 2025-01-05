@@ -18,6 +18,7 @@ contract Sender is OwnerIsCreator {
     error NotEnoughBalance(uint256 currentBalance, uint256 calculatedFees); // Used to make sure contract has enough balance.
     address sender;
     address receiver;
+    uint64 destinationChainSelector = 6827576821754315911;
     // Event emitted when a message is sent to another chain.
     event MessageSent(
         bytes32 indexed messageId // The unique ID of the CCIP message.
@@ -46,8 +47,7 @@ contract Sender is OwnerIsCreator {
     /// @dev Assumes your contract has sufficient LINK.
     /// @return messageId The ID of the message that was sent.
     function sendMessage(
-        bytes memory text,
-        uint64 destinationChainSelector
+        bytes memory text
     ) external returns (bytes32 messageId) {
         require(sender == msg.sender, "Unauthorised");
         // Create an EVM2AnyMessage struct in memory with necessary information for sending a cross-chain message

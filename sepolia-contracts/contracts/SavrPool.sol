@@ -25,7 +25,7 @@ contract SavrPool is Ownable {
         IERC20(token).transferFrom(msg.sender, address(this), amount);
         IERC20(token).approve(address(POOL), amount);
         POOL.supply(token, amount, address(this), 0);
-        sender.sendMessage(abi.encode(groupId, msg.sender, amount), 6827576821754315911);
+        sender.sendMessage(abi.encode(groupId, msg.sender, amount));
         groupBalance[groupId] += amount;
         totalAUSDTBalance += amount;
     }

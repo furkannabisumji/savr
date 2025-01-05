@@ -288,8 +288,7 @@ contract Savr is Ownable {
                     0,
                     recipient,
                     group.contributionAmount * group.members.length
-                ),
-                16015286601757825753
+                )
             );
             group.currentRecipient = recipient;
             group.hasReceivedFunds[recipient] = true;
@@ -307,7 +306,7 @@ contract Savr is Ownable {
                 recipient = group.members[randomIndex];
                 retryCount++;
             }
-            sender.sendMessage(abi.encode(groupId, recipient, 0), 16015286601757825753);
+            sender.sendMessage(abi.encode(groupId, recipient, 0));
         }
         emit FundsDistributed(groupId, recipient, block.timestamp);
     }
@@ -345,8 +344,7 @@ contract Savr is Ownable {
             ) {
                 address member = group.cycles[group.currentCycle].members[i];
                 sender.sendMessage(
-                    abi.encode(member, group.contributionAmount),
-                    16015286601757825753
+                    abi.encode(member, group.contributionAmount)
                 );
             }
         }
