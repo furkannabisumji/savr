@@ -124,8 +124,8 @@ function InviteForm({ className, setOpen, section, ...rest }: InviteFormProps) {
 
     try {
       await inviteFunction({
-        abi: config.savr.abi, // Contract ABI to interact with the smart contract
-        address: config.savr.address as `0x${string}`, // Contract address
+        abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+        address: config.lens.savr.address as `0x${string}`, // Contract address
         functionName: "inviteGroup", // The function in the smart contract to be called
         args: [slug, address], // Arguments for the contract function
       });

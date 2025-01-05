@@ -105,18 +105,18 @@ export const columns: ColumnDef<Circle>[] = [
   //   },
   // },
   {
-    accessorKey: "action",
+    accessorKey: "id",
     header: () => <div className="text-center">Action</div>,
     cell: ({ row }) => {
       return (
         <div className="text-center font-medium flex justify-center">
           <TableBtns
-            circleId={row.original.id}
-            name={row.getValue("name")}
-            prestake={row.getValue("preStakeAmount")}
-            amount={row.getValue("contributionAmount")}
-            members={row.getValue("members")}
-            admin={row.getValue("admin")}
+            circleId={row.getValue("id")}
+            name={row.original.name} // Pass name from the original row object
+            prestake={row.original.preStakeAmount} // Access pre-stake amount directly
+            amount={row.original.contributionAmount} // Contribution amount
+            members={row.original.members} // Members data
+            admin={row.original.admin} // Admin data
           />
         </div>
       );

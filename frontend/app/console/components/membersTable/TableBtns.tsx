@@ -38,8 +38,8 @@ const TableBtns = ({
   };
 
   const { data: invites }: { data: string[] | undefined } = useReadContract({
-    abi: config.savr.abi, // Contract ABI to interact with the smart contract
-    address: config.savr.address as `0x${string}`, // Contract address
+    abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.lens.savr.address as `0x${string}`, // Contract address
     functionName: "getInvitesAddresses",
     args: [circleId],
   });
@@ -56,16 +56,16 @@ const TableBtns = ({
 
       // Write to the contract: This is a sample function call to approve tokens for the contract
       await joinFunction({
-        abi: config.usdt.abi,
-        address: config.usdt.address as `0x${string}`,
+        abi: config.lens.usdt.abi,
+        address: config.lens.usdt.address as `0x${string}`,
         functionName: "approve", // Example function from your contract ABI
-        args: [config.savr.address, amt],
+        args: [config.lens.savr.address, amt],
       });
 
       // Then call the "joinGroup" function
       await joinFunction({
-        abi: config.savr.abi,
-        address: config.savr.address as `0x${string}`,
+        abi: config.lens.savr.abi,
+        address: config.lens.savr.address as `0x${string}`,
         functionName: "joinGroup",
         args: [circleId],
       });
@@ -87,7 +87,7 @@ const TableBtns = ({
   };
 
   return (
-    <>
+    <div className="w-full flex gap-2 items-center justify-center">
       {!invites?.includes(address as string) && (
         <InviteDataForm section="btn" />
       )}
@@ -108,7 +108,7 @@ const TableBtns = ({
           </Button>
         </Link>
       ) : null}
-    </>
+    </div>
   );
 };
 

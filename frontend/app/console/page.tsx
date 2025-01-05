@@ -13,14 +13,14 @@ export default function Console() {
   const [totalActiveCycles, setTotalActiveCycles] = useState<number>(0);
 
   const { data: circles }: { data: Circle[] | undefined } = useReadContract({
-    abi: config.savr.abi, // Contract ABI to interact with the smart contract
-    address: config.savr.address as `0x${string}`, // Contract address
+    abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.lens.savr.address as `0x${string}`, // Contract address
     functionName: "getGroups",
     args: [1, "0x0000000000000000000000000000000000000000"],
   });
   const { data: volume }: { data: bigint | undefined } = useReadContract({
-    abi: config.savr.abi, // Contract ABI to interact with the smart contract
-    address: config.savr.address as `0x${string}`, // Contract address
+    abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.lens.savr.address as `0x${string}`, // Contract address
     functionName: "totalVolume",
   });
 

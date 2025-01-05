@@ -2,7 +2,7 @@
 
 import React from "react";
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { polygon } from "wagmi/chains";
+import { polygon, sepolia } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import {
@@ -21,10 +21,11 @@ type ConnectKitConfig = Parameters<typeof getDefaultConfig>[0];
 const appConfigs = {
   development: {
     connectkit: {
-      chains: [lens],
+      chains: [lens, sepolia],
       transports: {
         // RPC URL for each chain
         [lens.id]: http(`${lens.rpcUrls.default.http}`),
+        [sepolia.id]: http(`${sepolia.rpcUrls.default.http}`),
       },
       // Required API Keys,
     } as Partial<ConnectKitConfig>,

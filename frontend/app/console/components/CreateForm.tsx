@@ -140,8 +140,8 @@ function CreateForm({ className, setOpen, ...rest }: CreateFormProps) {
       console.log(name, image, parsedAmount, cycles, stake);
 
       await createFunction({
-        abi: config.savr.abi, // Contract ABI to interact with the smart contract
-        address: config.savr.address as `0x${string}`, // Contract address
+        abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+        address: config.lens.savr.address as `0x${string}`, // Contract address
         functionName: "createGroup", // The function in the smart contract to be called
         args: [name, image, parsedAmount, cycles, stake], // Arguments for the contract function
       });

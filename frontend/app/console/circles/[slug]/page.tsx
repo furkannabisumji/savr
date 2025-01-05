@@ -47,15 +47,15 @@ export default function CircleDetail() {
 
   const { data: selectedCircle }: { data: Circle[] | undefined } =
     useReadContract({
-      abi: config.savr.abi, // Contract ABI to interact with the smart contract
-      address: config.savr.address as `0x${string}`, // Contract address
+      abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+      address: config.lens.savr.address as `0x${string}`, // Contract address
       functionName: "getGroups",
       args: [slug, admin],
     });
 
   const { data: invites }: { data: string[] | undefined } = useReadContract({
-    abi: config.savr.abi, // Contract ABI to interact with the smart contract
-    address: config.savr.address as `0x${string}`, // Contract address
+    abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.lens.savr.address as `0x${string}`, // Contract address
     functionName: "getInvitesAddresses",
     args: [slug],
   });
@@ -68,19 +68,19 @@ export default function CircleDetail() {
     try {
       // Approve token for factory contract
       await contributeFunction({
-        abi: config.usdt.abi,
-        address: config.usdt.address as `0x${string}`,
+        abi: config.lens.usdt.abi,
+        address: config.lens.usdt.address as `0x${string}`,
         functionName: "approve",
         args: [
-          config.savr.address,
+          config.lens.savr.address,
           selectedCircle ? selectedCircle[0].contributionAmount : 0,
         ],
       });
 
       // Execute the contribution transaction
       await contributeFunction({
-        abi: config.savr.abi,
-        address: config.savr.address as `0x${string}`,
+        abi: config.lens.savr.abi,
+        address: config.lens.savr.address as `0x${string}`,
         functionName: "contribute",
         args: [selectedCircle ? selectedCircle[0].id : 0],
       });
