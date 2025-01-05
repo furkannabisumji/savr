@@ -52,3 +52,29 @@ export function calculateAddressStats(cycles: Cycle[]): AddressStatsMap {
 
   return stats;
 }
+
+export function formatDate(seconds: number): string {
+  const date = new Date(seconds * 1000); // Convert seconds to milliseconds
+  const options: Intl.DateTimeFormatOptions = {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  };
+  return date.toLocaleDateString("en-US", options);
+}
+
+export function calculateCycleContributions(
+  circles: Circle[],
+  address: string,
+): bigint {
+  return circles.reduce((totalContribution, circle) => {
+    return (
+      totalContribution +
+      circle.cycles.reduce((cycleContribution, cycle) => {
+        return cycle.members.includes(address)
+          ? cycleContribution + cycle.contributedAmount
+          : cycleContribution;
+      }, BigInt(0))
+    );
+  }, BigInt(0));
+}

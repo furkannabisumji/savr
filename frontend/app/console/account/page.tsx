@@ -17,6 +17,7 @@ import CircelCard from "../components/CircleCard";
 import { Suspense } from "react";
 import WalletAddress from "../components/WalletAddress";
 import { CircleForm } from "../components/CreateForm";
+import { calculateCycleContributions } from "@/lib/utils";
 
 export default function Account() {
   const searchParams = useSearchParams();
@@ -25,7 +26,10 @@ export default function Account() {
   const [circlesByAdmin, setCirclesByAdmin] = useState<Circle[]>([]);
   const [totalMemberCycles, setTotalMemberCycles] = useState<number>(0);
 
-  const { data: circles }: { data: Circle[] | undefined } = useReadContract({
+  const {
+    data: circles,
+    refetch: refetchCircles,
+  }: { data: Circle[] | undefined; refetch: () => void } = useReadContract({
     abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
     address: config.lens.savr.address as `0x${string}`, // Contract address
     functionName: "getGroups",
@@ -59,6 +63,16 @@ export default function Account() {
 
     return totalCycles;
   };
+
+  useEffect(() => {
+    // Set up the interval to call refetchCircles every 3 seconds
+    const interval = setInterval(() => {
+      refetchCircles();
+    }, 3000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, []); // Empty dependency array ensures it runs only once on mount
 
   useEffect(() => {
     if (!address || !circles) return;
@@ -124,7 +138,12 @@ export default function Account() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$45,231.89</div>
+            <div className="text-2xl font-bold">
+              +
+              {circles &&
+                address &&
+                calculateCycleContributions(circles, address)}
+            </div>
             <p className="text-xs text-muted-foreground">
               Accumulated transactions.
             </p>

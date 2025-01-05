@@ -23,6 +23,7 @@ import Splash from "@/components/Splash";
 import { switchChain } from "@wagmi/core";
 import { lens } from "../customChains";
 import { walletClient } from "@/lib/viem";
+import Image from "next/image";
 
 export default function ConsoleLayout({
   children,
@@ -73,7 +74,12 @@ export default function ConsoleLayout({
                   href="/"
                   className="font-bold text-3xl flex items-center xl:hidden  h-16"
                 >
-                  Savr
+                  <Image
+                    src="/logo.png"
+                    alt="savr logo"
+                    width={100}
+                    height={100}
+                  />
                 </Link>
                 <ConnectKitButton />
               </div>

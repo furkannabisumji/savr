@@ -77,7 +77,7 @@ export function Terms() {
             apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY as string}
             initialValue={terms || ""}
             init={{
-              height: 400,
+              height: 450,
               menubar: false,
               plugins: ["link", "image", "lists"],
               toolbar:

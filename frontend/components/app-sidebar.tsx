@@ -24,6 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import Image from "next/image";
 
 // Menu items.
 const items = [
@@ -55,7 +56,7 @@ export function AppSidebar() {
           href="/"
           className="font-bold text-3xl flex items-center px-4  h-16"
         >
-          Savr
+          <Image src="/logo.png" alt="savr logo" width={100} height={100} />
         </Link>
         <SidebarGroup>
           <SidebarGroupContent>

@@ -59,13 +59,15 @@ export default function CircleDetail() {
   const [activeCircle, setActiveCircle] = useState<Circle | null>(null);
   const [addressStats, setAddressStats] = useState<AddressStatsMap>({});
 
-  const { data: selectedCircle }: { data: Circle[] | undefined } =
-    useReadContract({
-      abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
-      address: config.lens.savr.address as `0x${string}`, // Contract address
-      functionName: "getGroups",
-      args: [slug, admin],
-    });
+  const {
+    data: selectedCircle,
+    refetch: refetchCircles,
+  }: { data: Circle[] | undefined; refetch: () => void } = useReadContract({
+    abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.lens.savr.address as `0x${string}`, // Contract address
+    functionName: "getGroups",
+    args: [slug, admin],
+  });
 
   console.log(selectedCircle);
   //message sent event
@@ -94,7 +96,10 @@ export default function CircleDetail() {
 
   unwatch();
 
-  const { data: invites }: { data: string[] | undefined } = useReadContract({
+  const {
+    data: invites,
+    refetch: refetchInvites,
+  }: { data: string[] | undefined; refetch: () => void } = useReadContract({
     abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
     address: config.lens.savr.address as `0x${string}`, // Contract address
     functionName: "getInvitesAddresses",
@@ -162,6 +167,17 @@ export default function CircleDetail() {
       setIsContributing(false);
     }
   };
+
+  useEffect(() => {
+    // Set up the interval to call refetchCircles every 3 seconds
+    const interval = setInterval(() => {
+      refetchCircles();
+      refetchInvites();
+    }, 3000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, []); // Empty dependency array ensures it runs only once on mount
 
   useEffect(() => {
     if (!selectedCircle) return;
@@ -465,10 +481,10 @@ export default function CircleDetail() {
           <Card className="h-[55%]">
             <CardHeader className="border-b flex flex-col justify-center h-[16%]">
               <CardTitle>Cycle History</CardTitle>
-              <CardDescription>Payouts for completed cycles.</CardDescription>
+              <CardDescription>Record for all cycles.</CardDescription>
             </CardHeader>
             <CardContent className=" pt-3 h-[84%] px-2">
-              <Activities />
+              {activeCircle && <Activities cycles={activeCircle?.cycles} />}
             </CardContent>
           </Card>
         </div>

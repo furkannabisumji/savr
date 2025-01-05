@@ -26,8 +26,7 @@ export default function Home() {
   return (
     <main className="h-screen">
       <nav className="h-[8%] flex justify-between items-center px-10 bg-white">
-        <h2 className="font-bold text-xl">SAVR</h2>
-
+        <Image src="/logo.png" alt="savr logo" width={100} height={100} />
         {/* <ConnectWalletButton /> */}
         <ConnectKitButton />
       </nav>
