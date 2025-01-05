@@ -8,14 +8,25 @@ import { ConnectWalletButton } from "@/components/ConnectWalletButton";
 import { WelcomeToSavr } from "@/components/WelcomeToSavr";
 import { ConnectKitButton } from "connectkit";
 import { useAccount } from "wagmi";
+import { walletClient } from "@/lib/viem";
+import { lens } from "./customChains";
+import { useEffect } from "react";
 
 export default function Home() {
   const { isConnected, isConnecting, isReconnecting } = useAccount();
+
+  async function checkChain() {
+    walletClient && (await walletClient.switchChain({ id: lens.id }));
+  }
+
+  useEffect(() => {
+    checkChain();
+  }, []);
+
   return (
     <main className="h-screen">
       <nav className="h-[8%] flex justify-between items-center px-10 bg-white">
-        <h2 className="font-bold text-xl">SAVR</h2>
-
+        <Image src="/logo.png" alt="savr logo" width={100} height={100} />
         {/* <ConnectWalletButton /> */}
         <ConnectKitButton />
       </nav>

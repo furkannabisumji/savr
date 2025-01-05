@@ -37,8 +37,8 @@ const JoinCircleButton = ({
   };
 
   const { data: invites }: { data: string[] | undefined } = useReadContract({
-    abi: config.savr.abi, // Contract ABI to interact with the smart contract
-    address: config.savr.address as `0x${string}`, // Contract address
+    abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.lens.savr.address as `0x${string}`, // Contract address
     functionName: "getInvitesAddresses",
     args: [circleId],
   });
@@ -54,17 +54,17 @@ const JoinCircleButton = ({
       );
 
       // Write to the contract: This is a sample function call to approve tokens for the contract
-      await joinFunction({
-        abi: config.usdt.abi,
-        address: config.usdt.address as `0x${string}`,
-        functionName: "approve", // Example function from your contract ABI
-        args: [config.savr.address, amt],
-      });
+      // await joinFunction({
+      //   abi: config.lens.usdt.abi,
+      //   address: config.lens.usdt.address as `0x${string}`,
+      //   functionName: "approve", // Example function from your contract ABI
+      //   args: [config.lens.savr.address, amt],
+      // });
 
       // Then call the "joinGroup" function
       await joinFunction({
-        abi: config.savr.abi,
-        address: config.savr.address as `0x${string}`,
+        abi: config.lens.savr.abi,
+        address: config.lens.savr.address as `0x${string}`,
         functionName: "joinGroup",
         args: [circleId],
       });

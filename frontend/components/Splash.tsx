@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
 const Splash: React.FC = () => {
@@ -66,7 +67,12 @@ const Splash: React.FC = () => {
             <div className="relative w-56 h-56 rounded-full flex items-center justify-center bg-background/70 backdrop-blur-md shadow-2xl">
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/10 to-transparent"></div>
               <div className="font-bold text-3xl flex items-center h-16">
-                SAVR
+                <Image
+                  src="/badge.png"
+                  alt="savr logo"
+                  width={100}
+                  height={100}
+                />
               </div>
             </div>
           </div>

@@ -76,8 +76,8 @@ export default function CircelCard({ circle }: { circle: Circle }) {
             </small>
           </div>
 
-          <div className="flex justify-between items-center h-[20%] border-t pt-2">
-            <p>
+          <div className="flex justify-end items-center h-[20%] border-t pt-2">
+            {/* <p>
               prestake:{" "}
               <span className=" text-sm">
                 {formatEther(
@@ -89,7 +89,7 @@ export default function CircelCard({ circle }: { circle: Circle }) {
                 )}{" "}
                 USDT
               </span>
-            </p>
+            </p> */}
             <JoinCircleButton
               circleId={circle.id}
               name={circle.name}

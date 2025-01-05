@@ -7,8 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 export function Invites({ groupId }: { groupId: number }) {
   const { slug } = useParams();
   const { data: invites }: { data: string[] | undefined } = useReadContract({
-    abi: config.savr.abi, // Contract ABI to interact with the smart contract
-    address: config.savr.address as `0x${string}`, // Contract address
+    abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.lens.savr.address as `0x${string}`, // Contract address
     functionName: "getInvitesAddresses",
     args: [slug],
   });
@@ -39,7 +39,7 @@ export function Invites({ groupId }: { groupId: number }) {
             </div>
 
             <div className=" w-[50%] text-right font-medium text-primary">
-              member
+              Invited
             </div>
           </div>
         ))}

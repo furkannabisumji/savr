@@ -12,15 +12,18 @@ export default function Console() {
   const [totalUniqueMembers, setTotalUniqueMembers] = useState<number>(0);
   const [totalActiveCycles, setTotalActiveCycles] = useState<number>(0);
 
-  const { data: circles }: { data: Circle[] | undefined } = useReadContract({
-    abi: config.savr.abi, // Contract ABI to interact with the smart contract
-    address: config.savr.address as `0x${string}`, // Contract address
+  const {
+    data: circles,
+    refetch: refetchCircles,
+  }: { data: Circle[] | undefined; refetch: () => void } = useReadContract({
+    abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.lens.savr.address as `0x${string}`, // Contract address
     functionName: "getGroups",
     args: [1, "0x0000000000000000000000000000000000000000"],
   });
   const { data: volume }: { data: bigint | undefined } = useReadContract({
-    abi: config.savr.abi, // Contract ABI to interact with the smart contract
-    address: config.savr.address as `0x${string}`, // Contract address
+    abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.lens.savr.address as `0x${string}`, // Contract address
     functionName: "totalVolume",
   });
 
@@ -65,27 +68,37 @@ export default function Console() {
     return uniqueMembers.size; // Return the count of unique members
   };
 
-  const transformCircleData = (circles?: Circle[]): any[] => {
-    // Check if circles is undefined or empty
-    if (!circles || circles.length === 0) {
-      return []; // Return an empty array if no circles are provided
-    }
+  useEffect(() => {
+    // Set up the interval to call refetchCircles every 3 seconds
+    const interval = setInterval(() => {
+      refetchCircles();
+    }, 3000);
 
-    return circles.map((circle) => ({
-      id: circle.id,
-      name: circle.name,
-      admin: circle.admin,
-      contributionAmount: circle.contributionAmount.toString(), // Convert BigInt to string
-      preStakeAmount: circle.preStakeAmount.toString(),
-      totalCycles: circle.totalCycles.toString(),
-      currentCycle: circle.currentCycle.toString(),
-      currentRecipient: circle.currentRecipient,
-      createdAt: new Date(Number(circle.createdAt) * 1000).toLocaleString(), // Convert from seconds to a human-readable date
-      cycles: circle.cycles.length, // Just the number of cycles
-      members: circle.members.join(", "), // Join members into a string
-      image: circle.image,
-    }));
-  };
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, []); // Empty dependency array ensures it runs only once on mount
+
+  // const transformCircleData = (circles?: Circle[]): any[] => {
+  //   // Check if circles is undefined or empty
+  //   if (!circles || circles.length === 0) {
+  //     return []; // Return an empty array if no circles are provided
+  //   }
+
+  //   return circles.map((circle) => ({
+  //     id: circle.id,
+  //     name: circle.name,
+  //     admin: circle.admin,
+  //     contributionAmount: circle.contributionAmount.toString(), // Convert BigInt to string
+  //     preStakeAmount: circle.preStakeAmount.toString(),
+  //     totalCycles: circle.totalCycles.toString(),
+  //     currentCycle: circle.currentCycle.toString(),
+  //     currentRecipient: circle.currentRecipient,
+  //     createdAt: new Date(Number(circle.createdAt) * 1000).toLocaleString(), // Convert from seconds to a human-readable date
+  //     cycles: circle.cycles.length, // Just the number of cycles
+  //     members: circle.members.join(", "), // Join members into a string
+  //     image: circle.image,
+  //   }));
+  // };
 
   useEffect(() => {
     // Check total unique members and total active cycles when selectedCircle changes

@@ -16,10 +16,14 @@ import {
 import { ConnectKitButton } from "connectkit";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
 import Splash from "@/components/Splash";
+import { switchChain } from "@wagmi/core";
+import { lens } from "../customChains";
+import { walletClient } from "@/lib/viem";
+import Image from "next/image";
 
 export default function ConsoleLayout({
   children,
@@ -27,17 +31,35 @@ export default function ConsoleLayout({
   children: React.ReactNode;
 }>) {
   const currentPath = usePathname();
-  const { isConnected, isConnecting, isReconnecting } = useAccount();
+  const { isConnected, isConnecting, isReconnecting, address } = useAccount();
   const router = useRouter();
+
+  const [delayedCheck, setDelayedCheck] = useState(false);
+
+  async function checkChain() {
+    walletClient && (await walletClient.switchChain({ id: lens.id }));
+  }
+
+  useEffect(() => {
+    // Set a delay to ensure states are stabilized
+    checkChain();
+    const timer = setTimeout(() => setDelayedCheck(true), 100); // Adjust delay as needed
+    return () => clearTimeout(timer); // Cleanup timer on unmount
+  }, []);
 
   useEffect(() => {
     // If the user is not connected, redirect to the connection page or login
-    if (!isConnected && !isConnecting && !isReconnecting) {
+    if (delayedCheck && !isConnected && !isConnecting && !isReconnecting) {
       router.push("/"); // Redirect to connection page
     }
-  }, [isConnected, isConnecting, isReconnecting, router]);
-
-  // If still connecting or reconnecting, display a loading message
+  }, [
+    isConnected,
+    isConnecting,
+    isReconnecting,
+    delayedCheck,
+    router,
+    address,
+  ]);
 
   if (isConnected) {
     return (
@@ -52,13 +74,18 @@ export default function ConsoleLayout({
                   href="/"
                   className="font-bold text-3xl flex items-center xl:hidden  h-16"
                 >
-                  Savr
+                  <Image
+                    src="/logo.png"
+                    alt="savr logo"
+                    width={100}
+                    height={100}
+                  />
                 </Link>
                 <ConnectKitButton />
               </div>
             </header>
-            <div className="flex h-[90%] xl:h-[95%] flex-col  px-3 bg-white">
-              <div className="flex items-center h-[2%] ">
+            <div className="flex h-[90%] xl:h-[95%] flex-col px-3 bg-white">
+              <div className="flex items-center h-[2%]">
                 <SidebarTrigger className="-ml-1 xl:hidden" />
 
                 <Breadcrumb>
@@ -99,7 +126,7 @@ export default function ConsoleLayout({
               </div>
 
               <Suspense fallback={<div>Loading...</div>}>
-                <div className="h-[98%] ">{children}</div>
+                <div className="h-[98%]">{children}</div>
               </Suspense>
             </div>
           </SidebarInset>
@@ -108,5 +135,9 @@ export default function ConsoleLayout({
     );
   }
 
-  return <Splash />;
+  if (isConnecting || isReconnecting) {
+    return <Splash />;
+  }
+
+  return null;
 }

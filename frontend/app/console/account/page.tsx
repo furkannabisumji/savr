@@ -15,6 +15,9 @@ import config from "@/constants/config.json";
 import { useEffect, useState } from "react";
 import CircelCard from "../components/CircleCard";
 import { Suspense } from "react";
+import WalletAddress from "../components/WalletAddress";
+import { CircleForm } from "../components/CreateForm";
+import { calculateCycleContributions } from "@/lib/utils";
 
 export default function Account() {
   const searchParams = useSearchParams();
@@ -23,9 +26,12 @@ export default function Account() {
   const [circlesByAdmin, setCirclesByAdmin] = useState<Circle[]>([]);
   const [totalMemberCycles, setTotalMemberCycles] = useState<number>(0);
 
-  const { data: circles }: { data: Circle[] | undefined } = useReadContract({
-    abi: config.savr.abi, // Contract ABI to interact with the smart contract
-    address: config.savr.address as `0x${string}`, // Contract address
+  const {
+    data: circles,
+    refetch: refetchCircles,
+  }: { data: Circle[] | undefined; refetch: () => void } = useReadContract({
+    abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.lens.savr.address as `0x${string}`, // Contract address
     functionName: "getGroups",
     args: [1, "0x0000000000000000000000000000000000000000"],
   });
@@ -59,6 +65,16 @@ export default function Account() {
   };
 
   useEffect(() => {
+    // Set up the interval to call refetchCircles every 3 seconds
+    const interval = setInterval(() => {
+      refetchCircles();
+    }, 3000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, []); // Empty dependency array ensures it runs only once on mount
+
+  useEffect(() => {
     if (!address || !circles) return;
     // Get circles for a specific admin
     const circlesWithAdmin = getCirclesByAdmin(circles, address);
@@ -75,25 +91,27 @@ export default function Account() {
 
       <section className=" flex flex-col xl:flex-row xl:h-[20%] gap-4 pt-6">
         <div className=" w-full xl:w-[15%] ">
-          <ProfileImage src="/profile.jpg" alt="profile image" />
+          {address && <ProfileImage src={address} alt="profile image" />}
         </div>
         <div className=" w-full xl:w-[85%]">
           <div className=" xl:h-[50%] flex items-center">
-            <h2 className="font-bold text-xl">William Ikeji</h2>
+            <h2 className="font-bold text-xl">
+              {address && <WalletAddress address={address} />}
+            </h2>
           </div>
 
           <div className=" xl:h-[50%] flex flex-col xl:flex-row xl:gap-10 xl:items-center gap-4 items-start pt-6 xl:pt-0">
             <div className=" ">
               <div className="text-gray-400 text-md h-[50%]">Username</div>
-              <div className=" text-lg">@Codypharm</div>
+              <div className=" text-lg">NA</div>
             </div>
             <div className=" ">
               <div className="text-gray-400 text-md h-[50%]">Wallet</div>
-              <div className=" text-lg">0x0e6a....u81h9</div>
+              <div className=" text-lg">NA</div>
             </div>
             <div className=" ">
               <div className="text-gray-400 text-md h-[50%]">Email</div>
-              <div className=" text-lg">williamikeji@gmail.com</div>
+              <div className=" text-lg">NA</div>
             </div>
           </div>
         </div>
@@ -120,7 +138,12 @@ export default function Account() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$45,231.89</div>
+            <div className="text-2xl font-bold">
+              +
+              {circles &&
+                address &&
+                calculateCycleContributions(circles, address)}
+            </div>
             <p className="text-xs text-muted-foreground">
               Accumulated transactions.
             </p>
@@ -182,24 +205,6 @@ export default function Account() {
 
       <div className="flex justify-between h-[8%] items-center border-b py-2 px-2">
         <div className="bg-white ">
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[100px]  border-border/40 bg-background/50 backdrop-blur">
-              Filter
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all" className="cursor-pointer">
-                  All
-                </SelectItem>
-                <SelectItem value="mine" className="cursor-pointer">
-                  My Circles
-                </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="bg-white">
           <Select defaultValue="date">
             <SelectTrigger className="w-[180px] border-border/40 bg-background/50 backdrop-blur">
               Sort By
@@ -218,6 +223,10 @@ export default function Account() {
               </SelectGroup>
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="bg-white">
+          <CircleForm />
         </div>
       </div>
 

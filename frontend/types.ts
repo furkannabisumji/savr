@@ -65,3 +65,10 @@ export type AccountsAvailableResponse = {
     prev: string | null;
   };
 };
+
+export interface AddressStats {
+  occurrences: number; // Number of cycles the address participated in
+  totalContribution: bigint; // Total contribution made by the address across all cycles
+}
+
+export type AddressStatsMap = Record<string, AddressStats>; // Map of address to its stats

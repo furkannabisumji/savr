@@ -13,14 +13,29 @@ import { useReadContract } from "wagmi";
 import config from "@/constants/config.json";
 import type { Circle } from "@/types";
 import CircelCard from "../components/CircleCard";
+import { CircleForm } from "../components/CreateForm";
+import { useEffect } from "react";
 
 export default function Circles() {
-  const { data: circles }: { data: Circle[] | undefined } = useReadContract({
-    abi: config.savr.abi, // Contract ABI to interact with the smart contract
-    address: config.savr.address as `0x${string}`, // Contract address
+  const {
+    data: circles,
+    refetch: refetchCircles,
+  }: { data: Circle[] | undefined; refetch: () => void } = useReadContract({
+    abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+    address: config.lens.savr.address as `0x${string}`, // Contract address
     functionName: "getGroups",
     args: [1, "0x0000000000000000000000000000000000000000"],
   });
+
+  useEffect(() => {
+    // Set up the interval to call refetchCircles every 3 seconds
+    const interval = setInterval(() => {
+      refetchCircles();
+    }, 3000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, []); // Empty dependency array ensures it runs only once on mount
 
   return (
     <main className="h-full flex flex-col gap-6 ">
@@ -80,7 +95,7 @@ export default function Circles() {
         </div>
 
         <div className="bg-white">
-          <Select defaultValue="date">
+          {/* <Select defaultValue="date">
             <SelectTrigger className="w-[180px] border-border/40 bg-background/50 backdrop-blur">
               Sort By
             </SelectTrigger>
@@ -97,7 +112,8 @@ export default function Circles() {
                 </SelectItem>
               </SelectGroup>
             </SelectContent>
-          </Select>
+          </Select> */}
+          <CircleForm />
         </div>
       </div>
 

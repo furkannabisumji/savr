@@ -114,7 +114,7 @@ function CreateForm({ className, setOpen, ...rest }: CreateFormProps) {
   const { writeContractAsync: createFunction } = useWriteContract();
   const createCircle = async () => {
     setCreating(true);
-    if (!name || !image || cycles == null || stake == null || amount == null) {
+    if (!name || !image || cycles == null || amount == null) {
       toast({
         title: "Error",
         description: "All fields must be filled out.",
@@ -124,10 +124,10 @@ function CreateForm({ className, setOpen, ...rest }: CreateFormProps) {
     }
 
     // Ensure the numbers are greater than zero
-    if (Number(cycles) <= 0 || Number(stake) <= 0 || Number(amount) <= 0) {
+    if (Number(cycles) <= 0 || Number(amount) <= 0) {
       toast({
         title: "Error",
-        description: "Cycles, stake, and amount must be greater than zero.",
+        description: "Cycles,  and amount must be greater than zero.",
       });
       setCreating(false);
       return;
@@ -137,13 +137,13 @@ function CreateForm({ className, setOpen, ...rest }: CreateFormProps) {
       // Convert numbers to strings and parse to Ether
       const parsedAmount = parseEther(amount.toString());
 
-      console.log(name, image, parsedAmount, cycles, stake);
+      console.log(name, image, parsedAmount, cycles);
 
       await createFunction({
-        abi: config.savr.abi, // Contract ABI to interact with the smart contract
-        address: config.savr.address as `0x${string}`, // Contract address
+        abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
+        address: config.lens.savr.address as `0x${string}`, // Contract address
         functionName: "createGroup", // The function in the smart contract to be called
-        args: [name, image, parsedAmount, cycles, stake], // Arguments for the contract function
+        args: [name, image, parsedAmount, cycles], // Arguments for the contract function
       });
 
       toast({
@@ -193,7 +193,7 @@ function CreateForm({ className, setOpen, ...rest }: CreateFormProps) {
           placeholder="Max Cycles"
         />
       </div>
-      <div className="grid gap-2">
+      {/* <div className="grid gap-2">
         <Label htmlFor="stake">Prestake (%)</Label>
         <Input
           type="number"
@@ -214,7 +214,7 @@ function CreateForm({ className, setOpen, ...rest }: CreateFormProps) {
           }}
           placeholder="Prestaking percentage"
         />
-      </div>
+      </div> */}
       <div className="grid gap-2">
         <Label htmlFor="stake">Circle Image</Label>
         <div className="flex justify-center items-center h-36 lg:h-52 bg-gray-100">
