@@ -1,8 +1,8 @@
-import { Contract, Interface } from "ethers";
+import { Contract, Interface, Wallet as w2 } from "ethers";
 import { Provider, Wallet } from "zksync-ethers";
 import "dotenv/config";
 import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { resolve, win32 } from 'path';
 import { randomBytes, createHash } from "crypto"; 
 
 const provider = new Provider(process.env.RPC);
@@ -12,8 +12,9 @@ const contract = new Contract(process.env.CONTRACT!, abi, provider);
 const sepolia = new Provider(process.env.RPC2);
 const abi2 = JSON.parse(readFileSync(resolve('./abi2.json'), 'utf8'));
 
-const pool = new Contract(process.env.CONTRACT2!, abi2, sepolia);
 const wallet = new Wallet(process.env.PRIVATE_KEY!, provider);
+const wallet2 = new w2(process.env.PRIVATE_KEY!, sepolia as any);
+const pool = new Contract(process.env.CONTRACT2!, abi2, wallet2 as any);
 
 
 contract.on("RandomWordsRequested", async (requestId) => {
