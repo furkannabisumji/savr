@@ -1,7 +1,7 @@
 import WalletAddress from "@/app/console/components/WalletAddress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AddressStatsMap } from "@/types";
-import { formatEther } from "viem";
+import { formatEther, formatUnits } from "viem";
 
 export function Members({ stats }: { stats: AddressStatsMap }) {
   return (
@@ -30,7 +30,7 @@ export function Members({ stats }: { stats: AddressStatsMap }) {
             </div>
 
             <div className=" w-[25%] text-center font-medium text-primary">
-              {formatEther(stats.totalContribution)}
+              {formatUnits(stats.totalContribution, 6)}
             </div>
           </div>
         ))}

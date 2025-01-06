@@ -25,7 +25,7 @@ import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import config from "@/constants/config.json";
 import { useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { formatEther, parseEther, parseUnits } from "viem";
+import { formatEther, formatUnits, parseEther, parseUnits } from "viem";
 import WalletAddress from "../../components/WalletAddress";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
@@ -86,6 +86,7 @@ export default function CircleDetail() {
         console.log("Extracted Message ID:", messageId);
 
         const link = `https://ccip.chain.link/#/side-drawer/msg/${messageId}`;
+        switchToLens();
         toast({
           title: "Message sent",
           description: "Visit CCIP explorer for message transfer status.",
@@ -105,6 +106,10 @@ export default function CircleDetail() {
 
   // Unwatch the event when no longer needed
   unwatch();
+
+  const switchToLens = async () => {
+    await switchChain(wagmiConfig, { chainId: lens.id });
+  };
 
   const {
     data: invites,
@@ -127,14 +132,14 @@ export default function CircleDetail() {
     console.log("Contribution Amount (in wei):", contributionAmount);
 
     // Convert the contribution amount to the token's smallest unit (6 decimals) since aave usdt has 6 as decimal
-    const contributionAmountInSmallestUnit = parseUnits(
-      formatEther(contributionAmount as bigint),
-      6,
-    ); // 6 decimals for the token
-    console.log(
-      "Contribution Amount (in smallest unit):",
-      contributionAmountInSmallestUnit.toString(),
-    );
+    // const contributionAmountInSmallestUnit = parseUnits(
+    //   formatEther(contributionAmount as bigint),
+    //   6,
+    // ); // 6 decimals for the token
+    // console.log(
+    //   "Contribution Amount (in smallest unit):",
+    //   contributionAmountInSmallestUnit.toString(),
+    // );
 
     setIsContributing(true);
 
@@ -144,10 +149,7 @@ export default function CircleDetail() {
         abi: config.sepolia.usdt.abi,
         address: config.sepolia.usdt.address as `0x${string}`,
         functionName: "approve",
-        args: [
-          config.sepolia.savrpool.address,
-          contributionAmountInSmallestUnit,
-        ], // Send the converted value
+        args: [config.sepolia.savrpool.address, contributionAmount], // Send the converted value
       });
 
       // Execute the contribution transaction
@@ -155,7 +157,7 @@ export default function CircleDetail() {
         abi: config.sepolia.savrpool.abi,
         address: config.sepolia.savrpool.address as `0x${string}`,
         functionName: "supply",
-        args: [activeCircleId, contributionAmountInSmallestUnit], // Send the converted value
+        args: [activeCircleId, contributionAmount], // Send the converted value
       });
 
       // Show success toast
@@ -192,15 +194,19 @@ export default function CircleDetail() {
   useEffect(() => {
     if (!selectedCircle) return;
     // Check active cycles when component is mounted or selectedCircle data changes
-    const activeCycle = getActiveCycle(selectedCircle[1]);
+    const activeCycle = getActiveCycle(selectedCircle[Number(slug) - 1]);
     setActiveCycles(activeCycle);
-    setActiveCircle(selectedCircle[1]);
+    slug && setActiveCircle(selectedCircle[Number(slug) - 1]);
 
-    const stats = calculateAddressStatsForCircle(selectedCircle[1]);
+    const stats = calculateAddressStatsForCircle(
+      selectedCircle[Number(slug) - 1],
+    );
     setAddressStats(stats);
 
     // Get the completed cycles from the selectedCircle
-    const completedCyclesList = getCompletedCycles(selectedCircle[1]);
+    const completedCyclesList = getCompletedCycles(
+      selectedCircle[Number(slug) - 1],
+    );
 
     // Set the state with completed cycles
     setCompletedCycles(completedCyclesList);
@@ -259,7 +265,7 @@ export default function CircleDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${activeCircle && formatEther(activeCircle.contributionAmount)}
+              ${activeCircle && formatUnits(activeCircle.contributionAmount, 6)}
             </div>
             <p className="text-xs text-muted-foreground">
               +20.1% from last month
@@ -362,7 +368,7 @@ export default function CircleDetail() {
                     <small className="text-gray-500n flex items-center space-x-2">
                       (
                       {activeCycle
-                        ? formatEther(activeCycle.contributedAmount)
+                        ? formatUnits(activeCycle.contributedAmount, 6)
                         : 0}{" "}
                       USDT){"  "}
                       {activeCircle && (
@@ -420,7 +426,7 @@ export default function CircleDetail() {
                     <small className="text-gray-500">
                       {activeCircle &&
                         (activeCircle.cycles.length >
-                        activeCircle.members.length + 1 ? (
+                        activeCircle.members.length ? (
                           "Pending"
                         ) : (
                           <span className="text-green-500">Active</span>
@@ -431,8 +437,20 @@ export default function CircleDetail() {
                   <div className="flex justify-between items-center h-[16.66%] gap-3 border-t pt-5">
                     {activeCircle &&
                       (activeCircle.cycles.length >
-                      activeCircle.members.length + 1 ? (
-                        <InviteDataForm section="btn" />
+                      activeCircle.members.length ? (
+                        <>
+                          {activeCircle.members.includes(address as string) ? (
+                            <Button
+                              variant="secondary"
+                              disabled
+                              className="w-[50%] h-10"
+                            >
+                              Already a member
+                            </Button>
+                          ) : (
+                            <InviteDataForm section="btn" />
+                          )}
+                        </>
                       ) : (
                         <Button
                           variant="secondary"
@@ -450,7 +468,10 @@ export default function CircleDetail() {
                           address as string,
                         );
 
-                        if (isInvited && !isMember) {
+                        if (
+                          (isInvited || activeCircle.admin == address) &&
+                          !isMember
+                        ) {
                           return (
                             <JoinCircleButton
                               circleId={activeCircle.id}
@@ -464,7 +485,10 @@ export default function CircleDetail() {
                           );
                         }
 
-                        if (isMember || activeCircle?.admin == address) {
+                        if (
+                          isMember &&
+                          !activeCycle?.members.includes(address as string)
+                        ) {
                           return (
                             <Button
                               className="rounded-none py-2 w-[50%]"
@@ -472,8 +496,10 @@ export default function CircleDetail() {
                               type="button"
                               disabled={
                                 isContributing ||
-                                activeCircle.cycles.length >
-                                  activeCircle.members.length + 1
+                                activeCycle?.members.length ==
+                                  activeCircle.members.length ||
+                                activeCircle.members.length !==
+                                  activeCircle.cycles.length
                               }
                             >
                               Contribute

@@ -6,7 +6,7 @@ import { PiMoney, PiRecycle, PiUsersThreeBold } from "react-icons/pi";
 import Link from "next/link";
 import type { Circle } from "@/types";
 import Image from "next/image";
-import { formatEther, parseEther } from "viem";
+import { formatEther, formatUnits, parseEther } from "viem";
 import { useWriteContract } from "wagmi";
 import config from "@/constants/config.json";
 import TimeAgo from "./TimeToGo";
@@ -72,7 +72,7 @@ export default function CircelCard({ circle }: { circle: Circle }) {
               <PiMoney size={15} /> <span>Contributions:</span>
             </h3>
             <small className="text-gray-500">
-              {formatEther(circle.contributionAmount)}
+              {formatUnits(circle.contributionAmount, 6)}
             </small>
           </div>
 

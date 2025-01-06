@@ -24,7 +24,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FaPlus } from "react-icons/fa";
 
-export function InviteDataForm({ section }: { section?: string }) {
+export function InviteDataForm({
+  section,
+  id,
+}: {
+  section?: string;
+  id?: number;
+}) {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -52,7 +58,7 @@ export function InviteDataForm({ section }: { section?: string }) {
               Provide address of the user you wish to invite.
             </DialogDescription>
           </DialogHeader>
-          <InviteForm setOpen={setOpen} />
+          <InviteForm setOpen={setOpen} cid={id} />
         </DialogContent>
       </Dialog>
     );
@@ -82,7 +88,7 @@ export function InviteDataForm({ section }: { section?: string }) {
             Provide address of the user you wish to invite.
           </DrawerDescription>
         </DrawerHeader>
-        <InviteForm className="px-4" setOpen={setOpen} />
+        <InviteForm className="px-4" setOpen={setOpen} cid={id} />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>
@@ -101,9 +107,16 @@ import { useParams } from "next/navigation";
 interface InviteFormProps extends React.ComponentProps<"form"> {
   setOpen: (open: boolean) => void;
   section?: string;
+  cid?: number;
 }
 
-function InviteForm({ className, setOpen, section, ...rest }: InviteFormProps) {
+function InviteForm({
+  className,
+  setOpen,
+  section,
+  cid,
+  ...rest
+}: InviteFormProps) {
   const [address, setAddress] = React.useState<string>("");
   const [creating, setCreating] = React.useState(false);
   const { toast } = useToast();
@@ -127,7 +140,7 @@ function InviteForm({ className, setOpen, section, ...rest }: InviteFormProps) {
         abi: config.lens.savr.abi, // Contract ABI to interact with the smart contract
         address: config.lens.savr.address as `0x${string}`, // Contract address
         functionName: "inviteGroup", // The function in the smart contract to be called
-        args: [slug, address], // Arguments for the contract function
+        args: [slug || cid, address], // Arguments for the contract function
       });
 
       toast({
@@ -150,7 +163,7 @@ function InviteForm({ className, setOpen, section, ...rest }: InviteFormProps) {
     <form className={cn("grid items-start gap-4", className)}>
       <div className="grid gap-2">
         <Label htmlFor="id">Circle Id</Label>
-        <Input type="text" id="id" readOnly={true} defaultValue={slug} />
+        <Input type="text" id="id" readOnly={true} defaultValue={slug || cid} />
       </div>
       <div className="grid gap-2">
         <Label htmlFor="address">Address</Label>

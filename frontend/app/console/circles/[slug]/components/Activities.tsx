@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDate } from "@/lib/utils";
 import { Cycle } from "@/types";
-import { formatEther } from "viem";
+import { formatEther, formatUnits } from "viem";
 
 export function Activities({ cycles }: { cycles: Cycle[] }) {
   return (
@@ -10,7 +10,7 @@ export function Activities({ cycles }: { cycles: Cycle[] }) {
         <div className="flex items-center gap-2" key={index}>
           <div className=" w-[33.33%] space-y-1">
             <p className="text-sm font-medium leading-none">
-              $ {formatEther(cycle.contributedAmount)}
+              $ {formatUnits(cycle.contributedAmount, 6)}
             </p>
           </div>
           <div className="w-[33.33%] text-center font-medium">

@@ -6,7 +6,7 @@ import { useReadContract } from "wagmi";
 import config from "@/constants/config.json";
 import { Circle } from "@/types";
 import { useEffect, useState } from "react";
-import { formatEther } from "viem";
+import { formatEther, formatUnits } from "viem";
 
 export default function Console() {
   const [totalUniqueMembers, setTotalUniqueMembers] = useState<number>(0);
@@ -136,7 +136,7 @@ export default function Console() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${volume && formatEther(volume)}
+              ${volume && formatUnits(volume, 6)}
             </div>
             <p className="text-xs text-muted-foreground">
               Accumulated transactions.
@@ -229,7 +229,7 @@ export default function Console() {
       </section> */}
 
       <section className="h-auto xl:h-[82%]   flex flex-col xl:flex-row gap-10">
-        <DataTable columns={columns} data={circles || []} />
+        <DataTable columns={columns} data={[...(circles || [])].reverse()} />
       </section>
     </main>
   );
