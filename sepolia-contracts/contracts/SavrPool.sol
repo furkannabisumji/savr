@@ -10,15 +10,13 @@ contract SavrPool is Ownable {
     IPool internal constant POOL =
         IPool(0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951);
     Sender sender;
-    address receiver;
     address internal constant token =
         0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0;
     mapping(uint256 => uint256) groupBalance;
     uint256 totalAUSDTBalance;
 
-    function setSenderAndReceiver(address payable _sender, address _receiver) public onlyOwner {
+    function setSenderAndReceiver(address payable _sender) public onlyOwner {
         sender = Sender(_sender);
-        receiver = _receiver;
     }
     
     function supply(uint256 groupId, uint256 amount) public {
@@ -34,8 +32,7 @@ contract SavrPool is Ownable {
         uint256 groupId,
         address to,
         uint256 amount
-    ) public {
-        require(receiver == msg.sender, "Unauthorised");
+    ) public onlyOwner {
         if (groupId > 0) {
             uint256 groupProportion = (groupBalance[groupId] * 1e18) /
                 totalAUSDTBalance;

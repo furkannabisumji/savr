@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import "./CCIPSender.sol";
 
 contract Savr is Ownable {
     struct Cycle {
@@ -51,7 +50,6 @@ contract Savr is Ownable {
         INVITED,
         REQUESTED
     }
-    Sender sender;
     uint256 public totalVolume;
     uint256 public uniqueUsers;
     mapping(address => bool) isUser;
@@ -78,12 +76,16 @@ contract Savr is Ownable {
         address recipient,
         uint256 timestamp
     );
+    event Withdraw(
+        uint256 groupId,
+        address recipient,
+        uint256 amount
+    );
     event GroupTerminated(uint256 groupId, uint256 timestamp);
 
     constructor() {}
 
-  function setSenderAndReceiver(address payable _sender, address _receiver) public onlyOwner {
-        sender = Sender(_sender);
+  function setSenderAndReceiver(address _receiver) public onlyOwner {
         receiver = _receiver;
     }
     
@@ -283,13 +285,11 @@ contract Savr is Ownable {
                 recipient = group.members[randomIndex];
                 retryCount++;
             }
-            sender.sendMessage(
-                abi.encode(
+            emit Withdraw(
                     0,
                     recipient,
                     group.contributionAmount * group.members.length
-                )
-            );
+                );
             group.currentRecipient = recipient;
             group.hasReceivedFunds[recipient] = true;
             group.currentCycle++;
@@ -306,7 +306,7 @@ contract Savr is Ownable {
                 recipient = group.members[randomIndex];
                 retryCount++;
             }
-            sender.sendMessage(abi.encode(groupId, recipient, 0));
+            emit Withdraw(groupId, recipient, 0);
         }
         emit FundsDistributed(groupId, recipient, block.timestamp);
     }
@@ -343,9 +343,7 @@ contract Savr is Ownable {
                 i++
             ) {
                 address member = group.cycles[group.currentCycle].members[i];
-                sender.sendMessage(
-                    abi.encode(member, group.contributionAmount)
-                );
+            emit Withdraw(0, member, group.contributionAmount);
             }
         }
         if (group.totalContributedAmount > 0) {
