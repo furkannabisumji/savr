@@ -18,6 +18,7 @@ import { Suspense } from "react";
 import WalletAddress from "../components/WalletAddress";
 import { CircleForm } from "../components/CreateForm";
 import { calculateCycleContributions } from "@/lib/utils";
+import { formatUnits } from "viem";
 
 export default function Account() {
   const searchParams = useSearchParams();
@@ -52,10 +53,9 @@ export default function Account() {
     address: string,
   ): number => {
     let totalCycles = 0;
-
     circles.forEach((circle) => {
       circle.cycles.forEach((cycle) => {
-        if (cycle.members.includes(address.toLowerCase())) {
+        if (cycle.members.includes(address)) {
           totalCycles += 1;
         }
       });
@@ -82,6 +82,7 @@ export default function Account() {
 
     // Count cycles for a specific member address
     const memberCycleCount = countCyclesByMemberAddress(circles, address);
+    console.log(memberCycleCount);
     setTotalMemberCycles(memberCycleCount);
   }, [circles]);
 
@@ -142,7 +143,7 @@ export default function Account() {
               +
               {circles &&
                 address &&
-                calculateCycleContributions(circles, address)}
+                formatUnits(calculateCycleContributions(circles, address), 6)}
             </div>
             <p className="text-xs text-muted-foreground">
               Accumulated transactions.
@@ -232,7 +233,7 @@ export default function Account() {
 
       {/*  data */}
       <section className=" xl:h-[54%] grid lg:grid-cols-2 xl:grid-cols-3  gap-4 pb-10 px-3 w-full xl:overflow-y-auto">
-        {circlesByAdmin?.map((circle, index) => (
+        {[...(circlesByAdmin ?? [])].reverse().map((circle, index) => (
           <CircelCard circle={circle} key={index} />
         ))}
       </section>

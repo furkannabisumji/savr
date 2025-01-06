@@ -118,7 +118,7 @@ export default function Circles() {
       </div>
 
       <div className="h-[87%] grid lg:grid-cols-2 xl:grid-cols-3  w-full overflow-y-auto gap-4 px-3 bg-gray-50 py-2 ">
-        {circles?.map((circle, index) => (
+        {[...(circles ?? [])].reverse().map((circle, index) => (
           <CircelCard circle={circle} key={index} />
         ))}
       </div>

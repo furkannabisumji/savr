@@ -95,7 +95,7 @@ export function CircleForm() {
 import { useWriteContract } from "wagmi";
 import config from "@/constants/config.json";
 import { useToast } from "@/hooks/use-toast";
-import { parseEther } from "viem";
+import { parseEther, parseUnits } from "viem";
 
 interface CreateFormProps extends React.ComponentProps<"form"> {
   setOpen: (open: boolean) => void;
@@ -135,7 +135,7 @@ function CreateForm({ className, setOpen, ...rest }: CreateFormProps) {
 
     try {
       // Convert numbers to strings and parse to Ether
-      const parsedAmount = parseEther(amount.toString());
+      const parsedAmount = parseUnits(amount.toString(), 6); // 6 decimals for the token
 
       console.log(name, image, parsedAmount, cycles);
 

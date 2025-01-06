@@ -8,7 +8,7 @@ import { Circle } from "@/types";
 import WalletAddress from "../WalletAddress";
 import TimeAgo from "../TimeToGo";
 import JoinCircleButton from "../JoinCircleButton";
-import { formatEther } from "viem";
+import { formatEther, formatUnits } from "viem";
 import TableBtns from "./TableBtns";
 
 // This type is used to define the shape of our data.
@@ -74,7 +74,7 @@ export const columns: ColumnDef<Circle>[] = [
     cell: ({ row }) => {
       return (
         <div className="text-center font-medium">
-          {formatEther(row.getValue("contributionAmount"))}
+          {formatUnits(row.getValue("contributionAmount"), 6)}
         </div>
       );
     },

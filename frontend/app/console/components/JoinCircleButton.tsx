@@ -87,22 +87,18 @@ const JoinCircleButton = ({
 
   return (
     <>
-      {invites?.includes(address as string) &&
-        !members.includes(address as string) && (
-          <Button onClick={join} disabled={creating} className={className}>
-            {creating ? "Joining..." : "Join"}
-          </Button>
-        )}
-
-      {(invites?.includes(address as string) &&
-        members.includes(address as string)) ||
-      admin === address ? (
+      {(invites?.includes(address as string) || address === admin) &&
+      !members.includes(address as string) ? (
+        <Button onClick={join} disabled={creating} className={className}>
+          {creating ? "Joining..." : "Join"}
+        </Button>
+      ) : (
         <Link href={`/console/circles/${circleId}?admin=${admin}`}>
           <Button variant="secondary" className={className}>
             View
           </Button>
         </Link>
-      ) : null}
+      )}
     </>
   );
 };

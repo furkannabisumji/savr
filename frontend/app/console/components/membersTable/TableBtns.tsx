@@ -88,10 +88,6 @@ const TableBtns = ({
 
   return (
     <div className="w-full flex gap-2 items-center justify-center">
-      {!invites?.includes(address as string) && (
-        <InviteDataForm section="btn" />
-      )}
-
       {invites?.includes(address as string) &&
         !members.includes(address as string) && (
           <Button onClick={join} disabled={creating} className={className}>
@@ -99,15 +95,15 @@ const TableBtns = ({
           </Button>
         )}
 
-      {(invites?.includes(address as string) &&
+      {/* {(invites?.includes(address as string) &&
         members.includes(address as string)) ||
-      admin === address ? (
-        <Link href={`/console/circles/${circleId}?admin=${admin}`}>
-          <Button variant="secondary" className={className}>
-            View
-          </Button>
-        </Link>
-      ) : null}
+      admin === address ? ( */}
+      <Link href={`/console/circles/${circleId}?admin=${admin}`}>
+        <Button variant="secondary" className={className}>
+          View
+        </Button>
+      </Link>
+      {/* ) : null} */}
     </div>
   );
 };

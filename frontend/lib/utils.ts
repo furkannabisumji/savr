@@ -62,7 +62,7 @@ export function calculateAddressStatsForCircle(
   for (const member of circle.members) {
     stats[member] = { occurrences: 0, totalContribution: BigInt(0) };
   }
-  stats[circle.admin] = { occurrences: 0, totalContribution: BigInt(0) };
+  // stats[circle.admin] = { occurrences: 0, totalContribution: BigInt(0) };
 
   // Process each cycle
   for (const cycle of circle.cycles) {
@@ -70,7 +70,7 @@ export function calculateAddressStatsForCircle(
     const membersInCycle = cycle.members;
 
     // Update stats for each member in the circle
-    for (const member of [...circle.members, circle.admin]) {
+    for (const member of [...circle.members]) {
       if (membersInCycle.includes(member)) {
         stats[member].occurrences++;
         stats[member].totalContribution += cycleContribution;
