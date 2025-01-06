@@ -58,7 +58,7 @@ export function InviteDataForm({
               Provide address of the user you wish to invite.
             </DialogDescription>
           </DialogHeader>
-          <InviteForm setOpen={setOpen} id={id} />
+          <InviteForm setOpen={setOpen} cid={id} />
         </DialogContent>
       </Dialog>
     );
@@ -88,7 +88,7 @@ export function InviteDataForm({
             Provide address of the user you wish to invite.
           </DrawerDescription>
         </DrawerHeader>
-        <InviteForm className="px-4" setOpen={setOpen} id={id} />
+        <InviteForm className="px-4" setOpen={setOpen} cid={id} />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>
