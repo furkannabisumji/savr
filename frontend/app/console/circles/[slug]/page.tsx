@@ -41,7 +41,7 @@ import { lens } from "@/app/customChains";
 import { ToastAction } from "@/components/ui/toast";
 import Link from "next/link";
 import {
-  calculateAddressStats,
+  calculateAddressStatsForCircle,
   getActiveCycle,
   getCompletedCycles,
 } from "@/lib/utils";
@@ -76,24 +76,34 @@ export default function CircleDetail() {
     abi: config.sepolia.sender.eventAbi.messageSent,
     batch: false,
     onLogs(logs) {
-      console.log("Logs changed!", logs);
-      const link = `https://ccip.chain.link/#/side-drawer/msg/${logs[0].data}`;
-      toast({
-        title: "Message sent",
-        description: "Visit CCIP explorer for message transfer status.",
-        action: (
-          <ToastAction
-            altText="view"
-            className="p-0"
-            onClick={() => window.open(link, "_blank", "noopener,noreferrer")}
-          >
-            View
-          </ToastAction>
-        ),
-      });
+      if (logs.length > 0) {
+        const log = logs[0]; // Get the first log (or iterate if needed)
+
+        // The first topic in the log is the event signature; the next contains the indexed parameters
+        const messageId = log.topics[1]; // Get the indexed 'messageId'
+
+        console.log("Logs changed!", logs);
+        console.log("Extracted Message ID:", messageId);
+
+        const link = `https://ccip.chain.link/#/side-drawer/msg/${messageId}`;
+        toast({
+          title: "Message sent",
+          description: "Visit CCIP explorer for message transfer status.",
+          action: (
+            <ToastAction
+              altText="view"
+              className="p-0"
+              onClick={() => window.open(link, "_blank", "noopener,noreferrer")}
+            >
+              View
+            </ToastAction>
+          ),
+        });
+      }
     },
   });
 
+  // Unwatch the event when no longer needed
   unwatch();
 
   const {
@@ -186,7 +196,7 @@ export default function CircleDetail() {
     setActiveCycles(activeCycle);
     setActiveCircle(selectedCircle[1]);
 
-    const stats = calculateAddressStats(selectedCircle[1].cycles);
+    const stats = calculateAddressStatsForCircle(selectedCircle[1]);
     setAddressStats(stats);
 
     // Get the completed cycles from the selectedCircle
@@ -281,7 +291,7 @@ export default function CircleDetail() {
               +{activeCircle && activeCircle.members.length}
             </div>
             <p className="text-xs text-muted-foreground">
-              +180.1% from last month
+              Members count aside admin
             </p>
           </CardContent>
         </Card>

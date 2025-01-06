@@ -31,21 +31,49 @@ export const getCompletedCycles = (selectedCircle: Circle): Cycle[] => {
 };
 
 // calculate cycles amounts
-export function calculateAddressStats(cycles: Cycle[]): AddressStatsMap {
+// export function calculateAddressStats(cycles: Cycle[]): AddressStatsMap {
+//   const stats: AddressStatsMap = {};
+
+//   for (const cycle of cycles) {
+//     const cycleContribution = cycle.contributedAmount;
+
+//     for (const address of cycle.members) {
+//       if (stats[address]) {
+//         stats[address].occurrences++;
+//         stats[address].totalContribution += cycleContribution;
+//       } else {
+//         stats[address] = {
+//           occurrences: 1,
+//           totalContribution: cycleContribution,
+//         };
+//       }
+//     }
+//   }
+
+//   return stats;
+// }
+
+export function calculateAddressStatsForCircle(
+  circle: Circle,
+): AddressStatsMap {
   const stats: AddressStatsMap = {};
 
-  for (const cycle of cycles) {
-    const cycleContribution = cycle.contributedAmount;
+  // Initialize stats for all members and the admin
+  for (const member of circle.members) {
+    stats[member] = { occurrences: 0, totalContribution: BigInt(0) };
+  }
+  stats[circle.admin] = { occurrences: 0, totalContribution: BigInt(0) };
 
-    for (const address of cycle.members) {
-      if (stats[address]) {
-        stats[address].occurrences++;
-        stats[address].totalContribution += cycleContribution;
-      } else {
-        stats[address] = {
-          occurrences: 1,
-          totalContribution: cycleContribution,
-        };
+  // Process each cycle
+  for (const cycle of circle.cycles) {
+    const cycleContribution = cycle.contributedAmount;
+    const membersInCycle = cycle.members;
+
+    // Update stats for each member in the circle
+    for (const member of [...circle.members, circle.admin]) {
+      if (membersInCycle.includes(member)) {
+        stats[member].occurrences++;
+        stats[member].totalContribution += cycleContribution;
       }
     }
   }

@@ -1,7 +1,7 @@
 {
   "lens": {
     "savr": {
-      "address": "0x03DB612CE2Fa9A686723e2010cd551222F83B0Af",
+      "address": "0x8884FA656b6E075097038A229b8D866E4FbdaeE8",
       "abi": [
         {
           "inputs": [],
@@ -207,6 +207,31 @@
             }
           ],
           "name": "RandomWordsRequested",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "groupId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "Withdraw",
           "type": "event"
         },
         {
@@ -514,11 +539,6 @@
         },
         {
           "inputs": [
-            {
-              "internalType": "address payable",
-              "name": "_sender",
-              "type": "address"
-            },
             {
               "internalType": "address",
               "name": "_receiver",
@@ -1417,7 +1437,7 @@
   },
   "sepolia": {
     "savrpool": {
-      "address": "0x0D168958e7Be8873d4A997a0aB6F0Dac5b6966C8",
+      "address": "0x81b0334115f5641dDE86D7696C52020558Ab84a5",
       "abi": [
         {
           "anonymous": false,
@@ -1459,11 +1479,6 @@
             {
               "internalType": "address payable",
               "name": "_sender",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "_receiver",
               "type": "address"
             }
           ],
@@ -2335,7 +2350,7 @@
       ]
     },
     "sender": {
-      "address": "0x7D7c277cdE9abB358EC86159fc8D7d81612a54E0",
+      "address": "0x12F134C265651CcDf31Cd4a67973877D3B24b7c8",
       "abi": [
         {
           "inputs": [
