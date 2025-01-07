@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+**Project Name:** Savr
 
-## Getting Started
+**Team Members:**
+- Furkan Nabi Sumji (@furkannabisumji.lens)
+- Chukwunonso Ikeji (@codypharm.lens)
 
-First, run the development server:
+**Project Description:**
+Savr is a decentralized **Rotating Savings and Credit Association (ROSCA)** platform designed to streamline group savings through blockchain technology. It employs smart contracts for group creation, contributions, and distributions while earning yield via Aave. The project utilizes Chainlink CCIP for interchain messaging. For now, random recipient selection in each cycle is managed using AWS backend services, but this will be replaced with Chainlink VRF once it becomes available on the Lens chain.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+**Source Code Link:** [GitHub Repository](https://github.com/furkannabisumji/savr)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Preview Link:**  [Link](https://savr-lens.vercel.app/)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Demo Video/Slide Deck Link:**  [Video](https://www.youtube.com/watch?v=SPcrl6YH0oQ)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Screenshots:**
+![Screenshot 2025-01-07 090302](https://github.com/user-attachments/assets/2a55b97f-ede2-4631-bd20-205236fe1034)
+![Screenshot 2025-01-07 090439](https://github.com/user-attachments/assets/04881be6-ef32-42f3-81f9-9569cff0179d)
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### **System Design Overview**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Savr operates with two main smart contracts:
 
-## Deploy on Vercel
+1. **Savr.sol** (Deployed on the Lens Chain):
+   - Used for creating and managing ROSCA groups.
+   - Facilitates group setup, contribution settings, and member invitations.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. **SavrPool.sol** (Deployed on Ethereum Sepolia):
+   - Manages contributions and deposits them into Aave to generate yield.
+   - Handles fund disbursements to members based on group cycles.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+### **User Workflow**
+
+1. **Group Creation:**
+   - A user creates a ROSCA group via **Savr.sol**.
+   - Sets the contribution amount and invites members.
+
+2. **Contribution Phase:**
+   - Members supply the contribution amount to **SavrPool.sol**, which deposits the funds into Aave.
+   - A message is sent via Chainlink CCIP to **Savr.sol** confirming the contribution.
+
+3. **Disbursement:**
+   - Once all members contribute, **Savr.sol** sends a message to **SavrPool.sol** to disburse the pooled amount to a member selected randomly.
+   - Currently, random selection is performed using AWS backend services. Once Chainlink VRF becomes available on the Lens chain, it will replace AWS for secure and decentralized randomness.
+
+4. **Completion and Termination:**
+   - When all cycles are complete, the group is terminated.
+   - **SavrPool.sol** distributes the accrued interest to one random member of the group.
+
+[Tweet](https://x.com/furkannabisumji/status/1876474036135637034?t=1FDnBZVw-fExq464hrzTVA&s=19)
