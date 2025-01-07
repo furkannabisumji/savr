@@ -562,7 +562,7 @@ export default function CircleDetail() {
               <Chat />
             </TabsContent>
             <TabsContent value="terms" className="h-[92%]  p-2">
-              <Terms />
+              {address && admin && <Terms address={address} admin={admin} />}
             </TabsContent>
             <TabsContent value="invite" className="h-[92%]  p-2">
               <Invites groupId={Number(slug)} />

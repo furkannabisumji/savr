@@ -25,6 +25,9 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import Image from "next/image";
+import { useAccount } from "wagmi";
+import WalletAddress from "@/app/console/components/WalletAddress";
+import WalletAvatar from "@/app/console/circles/[slug]/components/WalletAvatar";
 
 // Menu items.
 const items = [
@@ -48,7 +51,7 @@ const items = [
 
 export function AppSidebar() {
   const currentPath = usePathname();
-
+  const { address } = useAccount();
   return (
     <Sidebar>
       <SidebarContent>
@@ -95,13 +98,14 @@ export function AppSidebar() {
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground "
                 >
-                  <Avatar>
+                  {/* <Avatar>
                     <AvatarImage src="/profile.jpg" />
-                    <AvatarFallback>WI</AvatarFallback>
-                  </Avatar>
+                    <AvatarFallback>WA</AvatarFallback>
+                  </Avatar> */}
+                  {address && <WalletAvatar walletAddress={address} />}
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">
-                      William Ikeji
+                      {address && <WalletAddress address={address} />}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
@@ -115,16 +119,13 @@ export function AppSidebar() {
               >
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <Avatar>
-                      <AvatarImage src="/profile.jpg" />
-                      <AvatarFallback>WI</AvatarFallback>
-                    </Avatar>
+                    {address && <WalletAvatar walletAddress={address} />}
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">
-                        William Ikeji
+                        {address && <WalletAddress address={address} />}
                       </span>
                       <span className="truncate text-xs">
-                        williamikeji@gmail.com
+                        {/* williamikeji@gmail.com */}
                       </span>
                     </div>
                   </div>

@@ -255,7 +255,7 @@ export function WelcomeToSavr() {
         stopPolling(); // Stop polling once the desired condition is met
       }
     }
-  }, [accountData, txStatusData, stopPolling]);
+  }, [accountData, txStatusData, stopPolling, address]);
 
   if (!isConnected && !isConnecting) {
     return (
@@ -288,14 +288,16 @@ export function WelcomeToSavr() {
           disabled={isGenerating}
           className="w-full h-12 font-semibold"
         >
-          {isGenerating ? "Generating..." : "Get one"}
+          {isGenerating ? "Generating..." : "Get a profile"}
         </Button>
 
-        {accountsAvailable && !loadingAvailableAcc && (
-          <AccountsList
-            accountsAvailable={accountsAvailable.accountsAvailable}
-          />
-        )}
+        {accountsAvailable &&
+          !loadingAvailableAcc &&
+          accountsAvailable.accountsAvailable.items.length > 0 && (
+            <AccountsList
+              accountsAvailable={accountsAvailable.accountsAvailable}
+            />
+          )}
       </div>
       <DisconnectWalletButton />
     </>

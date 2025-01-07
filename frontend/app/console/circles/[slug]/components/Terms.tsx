@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { Editor } from "@tinymce/tinymce-react";
 import { Button } from "@/components/ui/button"; // Assuming Button is your Shadcn button component
 
-export function Terms() {
+export function Terms({ address, admin }: { address: string; admin: string }) {
   const { slug } = useParams();
   const [terms, setTerms] = useState(""); // State to store terms content
   const [loading, setLoading] = useState(true); // State to handle loading state
@@ -91,7 +91,7 @@ export function Terms() {
             <Button
               className="mt-4 px-4 py-2 text-white"
               onClick={handleSaveTerms}
-              disabled={saving} // Disable button while saving
+              disabled={saving || address != admin} // Disable button while saving or wrong user
             >
               {saving ? (
                 <span>Saving...</span> // Display "Saving..." when saving

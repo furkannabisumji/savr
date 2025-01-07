@@ -33,7 +33,7 @@ export default function Home() {
       <section className="h-[92%] grid xl:grid-cols-2">
         <div className="h-full flex flex-col justify-center items-center  ">
           <h2 className="font-semibold text-sm">
-            PEER-TO-PEER SAVINGS & LENDING
+            PEER-TO-PEER SAVINGS, LENDING & YIELD FARMING
           </h2>
           <h1 className="font-bold text-xl xl:text-7xl py-2 text-center">
             Decentralized ROSCA Platform
